@@ -1,38 +1,42 @@
-.App {
-  text-align: center;
+/* App.css or index.css */
+
+/* Customizing the datepicker input */
+.react-datepicker-wrapper .chakra-input {
+  padding: 8px;
+  border: 1px solid var(--chakra-colors-gray-300);
+  border-radius: 8px;
+  width: 100%;
+  font-size: 16px;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* Customizing the datepicker calendar */
+.react-datepicker {
+  font-family: "Inter", sans-serif; /* Use Chakra's default font */
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
+.react-datepicker__header {
+  background-color: var(--chakra-colors-blue-500);
   color: white;
+  border-bottom: none;
 }
 
-.App-link {
-  color: #61dafb;
+.react-datepicker__day,
+.react-datepicker__day-name,
+.react-datepicker__time-name {
+  width: 2.5rem;
+  line-height: 2.5rem;
+  border-radius: 0.375rem;
+  margin: 0.166rem;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.react-datepicker__day:hover {
+  background-color: var(--chakra-colors-blue-200);
+  color: var(--chakra-colors-blue-700);
+}
+
+.react-datepicker__day--selected {
+  background-color: var(--chakra-colors-blue-500);
+  color: white;
 }
