@@ -6,7 +6,8 @@ import { az } from "date-fns/locale";
 import { v4 as uuidv4 } from "uuid";
 import EventModal from "../components/event-modal";
 import CustomToolbar from "../components/custom-toolbar";
-import { Box, Flex, Button } from "@chakra-ui/react";
+import RegisterModal from "../components/register-modal"; // Assuming RegisterModal is created
+import { Box, Flex, Button, Text } from "@chakra-ui/react";
 
 const locales = {
   az,
@@ -46,11 +47,14 @@ interface Event {
 const MyCalendar: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
   const [selectedSlot, setSelectedSlot] = useState<{
     start: Date;
     end: Date;
   } | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
+  const [phone, setPhone] = useState<string | null>(null);
 
   const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
     setSelectedSlot({ start, end });
@@ -83,6 +87,38 @@ const MyCalendar: React.FC = () => {
       setEvents([...events, newEvent]);
     }
   };
+
+  const handleRegisterSave = (user: string, phone: string) => {
+    setUsername(user);
+    setPhone(phone);
+  };
+
+  if (!username || !phone) {
+    return (
+      <Flex
+        justifyContent="center"
+        alignItems="center"
+        flexDirection="column"
+        height="100%"
+      >
+        <Text fontSize="xl" mb={4} px={4} textAlign="center">
+          Cədvəl yaradmaq üçün qeydiyyatdan keçin
+        </Text>
+        <Button
+          onClick={() => setIsRegisterModalOpen(true)}
+          colorScheme="blue"
+          width="256px"
+        >
+          Qeydiyyat
+        </Button>
+        <RegisterModal
+          isOpen={isRegisterModalOpen}
+          onClose={() => setIsRegisterModalOpen(false)}
+          onSave={handleRegisterSave}
+        />
+      </Flex>
+    );
+  }
 
   return (
     <Box style={{ height: "100%" }}>

@@ -24,3 +24,7 @@ declare module "react-big-calendar" {
 
   export function dateFnsLocalizer(config: any): any;
 }
+
+interface Window {
+  Telegram: any | undefined;
+}
