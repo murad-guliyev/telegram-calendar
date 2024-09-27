@@ -1,11 +1,10 @@
-// src/components/CustomToolbar.tsx
 import React from "react";
 import { Box, Button, Flex, IconButton } from "@chakra-ui/react";
 import {
   ArrowBackIcon,
   ArrowForwardIcon,
   CalendarIcon,
-} from "@chakra-ui/icons"; // Import Chakra UI Icons
+} from "@chakra-ui/icons";
 
 interface CustomToolbarProps {
   label: string;
@@ -21,7 +20,6 @@ const CustomToolbar: React.FC<CustomToolbarProps> = ({
   return (
     <Box mb={4}>
       <Flex justify="space-between" align="center" mb={4}>
-        {/* Navigation Buttons with Chakra UI Icons */}
         <Flex>
           <IconButton
             icon={<ArrowBackIcon />}
@@ -42,8 +40,6 @@ const CustomToolbar: React.FC<CustomToolbarProps> = ({
             onClick={() => onNavigate("NEXT")}
           />
         </Flex>
-
-        {/* View Buttons (Day, Week, Month) */}
         <Flex>
           <Button ml={2} onClick={() => onView("day")}>
             Gün
@@ -53,8 +49,6 @@ const CustomToolbar: React.FC<CustomToolbarProps> = ({
           </Button>
         </Flex>
       </Flex>
-
-      {/* Current Date Label */}
       <Box fontWeight="bold" fontSize="lg">
         {label}
       </Box>

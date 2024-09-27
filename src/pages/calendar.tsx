@@ -1,27 +1,25 @@
-// src/Calendar.tsx
 import React, { useState } from "react";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { format, parse, startOfWeek, getDay } from "date-fns";
-import { az } from "date-fns/locale"; // Azerbaijani locale
-import { v4 as uuidv4 } from "uuid"; // Import uuid
+import { az } from "date-fns/locale";
+import { v4 as uuidv4 } from "uuid";
 import EventModal from "../components/event-modal";
-import CustomToolbar from "../components/custom-toolbar"; // Import custom toolbar
+import CustomToolbar from "../components/custom-toolbar";
 import { Box, Flex, Button } from "@chakra-ui/react";
 
 const locales = {
-  az, // Use Azerbaijani locale
+  az,
 };
 
 const localizer = dateFnsLocalizer({
   format,
   parse,
-  startOfWeek: () => startOfWeek(new Date(), { locale: az }), // Start of the week for Azerbaijani
+  startOfWeek: () => startOfWeek(new Date(), { locale: az }),
   getDay,
   locales,
 });
 
-// Azerbaijani translations for calendar messages
 const calendarMessages = {
   today: "Bugün",
   previous: "Əvvəlki",
@@ -54,40 +52,35 @@ const MyCalendar: React.FC = () => {
   } | null>(null);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
 
-  // Handle selecting a time slot (mobile-friendly)
   const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
     setSelectedSlot({ start, end });
-    setSelectedEvent(null); // No existing event selected
-    setIsModalOpen(true); // Open modal to add a new event
+    setSelectedEvent(null);
+    setIsModalOpen(true);
   };
 
-  // Handle selecting an event for editing
   const handleSelectEvent = (event: Event) => {
-    setSelectedEvent(event); // Set the event to be edited
-    setSelectedSlot(null); // No need to use a time slot for editing
-    setIsModalOpen(true); // Open the modal for editing
+    setSelectedEvent(event);
+    setSelectedSlot(null);
+    setIsModalOpen(true);
   };
 
-  // Handle saving a new or edited event
   const handleSaveEvent = (title: string, start: Date, end: Date) => {
     if (selectedEvent) {
-      // Editing an existing event
       setEvents(
         events.map((event) =>
           event.id === selectedEvent.id
-            ? { ...event, title, start, end } // Update the event
+            ? { ...event, title, start, end }
             : event
         )
       );
     } else {
-      // Creating a new event
       const newEvent: Event = {
-        id: uuidv4(), // Assign a unique ID
+        id: uuidv4(),
         title,
         start,
         end,
       };
-      setEvents([...events, newEvent]); // Add the new event
+      setEvents([...events, newEvent]);
     }
   };
 
@@ -104,23 +97,23 @@ const MyCalendar: React.FC = () => {
         startAccessor="start"
         endAccessor="end"
         selectable
-        onSelectSlot={handleSelectSlot} // Add event on slot press
-        onSelectEvent={handleSelectEvent} // Open modal for event editing
+        onSelectSlot={handleSelectSlot}
+        onSelectEvent={handleSelectEvent}
         style={{ height: "100%" }}
         defaultView="day"
         views={["day", "week"]}
-        step={30} // Set time step to 30 minutes (optional)
-        timeslots={2} // Set to 2 timeslots per hour (optional)
-        messages={calendarMessages} // Use custom Azerbaijani messages
+        step={30}
+        timeslots={2}
+        messages={calendarMessages}
         components={{
-          toolbar: CustomToolbar, // Use the custom toolbar
+          toolbar: CustomToolbar,
         }}
       />
       <EventModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSave={handleSaveEvent}
-        initialEvent={selectedEvent} // Pass selected event to modal for editing (null for new)
+        initialEvent={selectedEvent}
       />
     </Box>
   );
