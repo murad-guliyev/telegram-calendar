@@ -161,10 +161,12 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
                 onChange={(date: Date | null) => date && setStartHour(date)}
                 showTimeSelect
                 showTimeSelectOnly
-                timeIntervals={15}
+                timeIntervals={60}
                 timeCaption="Saat"
                 dateFormat="HH:mm"
                 className="chakra-input"
+                onFocus={(e) => e.target.blur()}
+                withPortal
               />
             </Box>
             <Box>
@@ -174,10 +176,12 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
                 onChange={(date: Date | null) => date && setEndHour(date)}
                 showTimeSelect
                 showTimeSelectOnly
-                timeIntervals={15}
+                timeIntervals={60}
                 timeCaption="Saat"
                 dateFormat="HH:mm"
                 className="chakra-input"
+                onFocus={(e) => e.target.blur()}
+                withPortal
               />
             </Box>
           </FormControl>

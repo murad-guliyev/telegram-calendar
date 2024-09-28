@@ -48,23 +48,13 @@ const MyCalendar: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
-  const [selectedSlot, setSelectedSlot] = useState<{
-    start: Date;
-    end: Date;
-  } | null>(null);
+
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [phone, setPhone] = useState<string | null>(null);
 
-  const handleSelectSlot = ({ start, end }: { start: Date; end: Date }) => {
-    setSelectedSlot({ start, end });
-    setSelectedEvent(null);
-    setIsModalOpen(true);
-  };
-
   const handleSelectEvent = (event: Event) => {
     setSelectedEvent(event);
-    setSelectedSlot(null);
     setIsModalOpen(true);
   };
 
@@ -132,9 +122,7 @@ const MyCalendar: React.FC = () => {
         events={events}
         startAccessor="start"
         endAccessor="end"
-        selectable
-        longPressThreshold={10}
-        onSelectSlot={handleSelectSlot}
+        longPressThreshold={100}
         onSelectEvent={handleSelectEvent}
         style={{ height: "100%" }}
         defaultView="day"
