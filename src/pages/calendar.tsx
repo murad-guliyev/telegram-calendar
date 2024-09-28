@@ -133,6 +133,7 @@ const MyCalendar: React.FC = () => {
         startAccessor="start"
         endAccessor="end"
         selectable
+        longPressThreshold={10}
         onSelectSlot={handleSelectSlot}
         onSelectEvent={handleSelectEvent}
         style={{ height: "100%" }}

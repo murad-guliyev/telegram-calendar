@@ -26,12 +26,13 @@ const Menu = () => {
       justify="space-around"
       align="center"
       p={2}
+      pb={4}
       bg="blue.500"
       color="white"
       position="fixed"
       bottom="0"
       width="100%"
-      height="60px"
+      height="80px"
     >
       {menuItems.map((item) => (
         <IconButton

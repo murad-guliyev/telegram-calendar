@@ -112,6 +112,7 @@ const EventModal: React.FC<EventModalProps> = ({
               timeIntervals={15}
               dateFormat={allDay ? "P" : "Pp"}
               className="chakra-input"
+              withPortal
             />
           </FormControl>
 
@@ -125,6 +126,7 @@ const EventModal: React.FC<EventModalProps> = ({
               timeIntervals={15}
               dateFormat={allDay ? "P" : "Pp"}
               className="chakra-input"
+              withPortal
             />
           </FormControl>
 
