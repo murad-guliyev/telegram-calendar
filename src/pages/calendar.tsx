@@ -50,8 +50,7 @@ const MyCalendar: React.FC = () => {
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
 
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const [username, setUsername] = useState<string | null>(null);
-  const [phone, setPhone] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
 
   const handleSelectEvent = (event: Event) => {
     setSelectedEvent(event);
@@ -78,12 +77,11 @@ const MyCalendar: React.FC = () => {
     }
   };
 
-  const handleRegisterSave = (user: string, phone: string) => {
-    setUsername(user);
-    setPhone(phone);
+  const handleUserCreate = (createdUserId: string) => {
+    setUserId(createdUserId);
   };
 
-  if (!username || !phone) {
+  if (!userId) {
     return (
       <Flex
         justifyContent="center"
@@ -104,7 +102,7 @@ const MyCalendar: React.FC = () => {
         <RegisterModal
           isOpen={isRegisterModalOpen}
           onClose={() => setIsRegisterModalOpen(false)}
-          onSave={handleRegisterSave}
+          onUserCreate={handleUserCreate}
         />
       </Flex>
     );

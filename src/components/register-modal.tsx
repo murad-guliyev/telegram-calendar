@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -18,33 +18,28 @@ import {
 } from "@chakra-ui/react";
 import PhoneInput from "react-phone-input-2";
 import DatePicker from "react-datepicker";
+import { format } from "date-fns";
+
+import { createUser } from "../services/user";
+import { TUserData } from "../models/user";
 
 import "react-phone-input-2/lib/style.css";
 import "react-datepicker/dist/react-datepicker.css";
+import { daysOfWeek } from "../utils/daysOfWeek";
 
 interface RegisterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (
-    username: string,
-    phone: string,
-    workingDays: string[],
-    startHour: Date,
-    endHour: Date
-  ) => void;
-  initialUsername?: string;
-  initialPhone?: string;
+  onUserCreate: (createdUserId: string) => void;
 }
 
 const RegisterModal: React.FC<RegisterModalProps> = ({
   isOpen,
   onClose,
-  onSave,
-  initialUsername = "",
-  initialPhone = "",
+  onUserCreate,
 }) => {
-  const [username, setUsername] = useState(initialUsername);
-  const [phone, setPhone] = useState(initialPhone);
+  const [username, setUsername] = useState("");
+  const [phone, setPhone] = useState("");
   const [workingDays, setWorkingDays] = useState<string[]>([
     "monday",
     "tuesday",
@@ -52,37 +47,31 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
     "thursday",
     "friday",
   ]);
-  const [startHour, setStartHour] = useState(
+  const [startTime, setStartTime] = useState(
     new Date(new Date().setHours(9, 0, 0))
   );
-  const [endHour, setEndHour] = useState(
+  const [endTime, setEndTime] = useState(
     new Date(new Date().setHours(18, 0, 0))
   );
 
-  const daysOfWeek = [
-    { id: "monday", label: "Bazar ertəsi" },
-    { id: "tuesday", label: "Çərşənbə axşamı" },
-    { id: "wednesday", label: "Çərşənbə" },
-    { id: "thursday", label: "Cümə axşamı" },
-    { id: "friday", label: "Cümə" },
-    { id: "saturday", label: "Şənbə" },
-    { id: "sunday", label: "Bazar" },
-  ];
-
-  useEffect(() => {
-    setUsername(initialUsername);
-    setPhone(initialPhone);
-  }, [initialUsername, initialPhone]);
+  const formatTime = (date: Date) => format(date, "HH:mm");
 
   const handleSave = () => {
     if (username && phone) {
-      onSave(
+      const data: TUserData = {
         username,
         phone,
         workingDays,
-        new Date(startHour),
-        new Date(endHour)
-      );
+        startTime: formatTime(startTime),
+        endTime: formatTime(endTime),
+      };
+
+      createUser(data).then((createdUserId: string | undefined) => {
+        if (createdUserId) {
+          onUserCreate(createdUserId);
+        }
+      });
+
       onClose();
     } else {
       alert("Zəhmət olmasa, bütün sahələri doldurun");
@@ -146,7 +135,6 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
             </VStack>
           </FormControl>
 
-          {/* Working Hours Section */}
           <FormControl id="workingHours" mb={4}>
             <FormLabel>
               İş saatları
@@ -157,8 +145,8 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
             <Box mb={2}>
               <FormLabel fontSize="sm">Başlanğıc saatı</FormLabel>
               <DatePicker
-                selected={startHour}
-                onChange={(date: Date | null) => date && setStartHour(date)}
+                selected={startTime}
+                onChange={(date: Date | null) => date && setStartTime(date)}
                 showTimeSelect
                 showTimeSelectOnly
                 timeIntervals={60}
@@ -172,8 +160,8 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
             <Box>
               <FormLabel fontSize="sm">Bitmə saatı</FormLabel>
               <DatePicker
-                selected={endHour}
-                onChange={(date: Date | null) => date && setEndHour(date)}
+                selected={endTime}
+                onChange={(date: Date | null) => date && setEndTime(date)}
                 showTimeSelect
                 showTimeSelectOnly
                 timeIntervals={60}
@@ -186,7 +174,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
             </Box>
           </FormControl>
         </ModalBody>
-        <ModalFooter>
+        <ModalFooter pb={8}>
           <Button colorScheme="blue" mr={3} onClick={handleSave}>
             Qeydiyyatdan keç
           </Button>

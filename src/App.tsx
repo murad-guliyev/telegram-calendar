@@ -22,7 +22,7 @@ function App() {
                 <Route path="/master/:id" element={<MasterDetails />} />
               </Routes>
             </Box>
-            <Box width="100%">
+            <Box width="100%" height="64px">
               <Menu />
             </Box>
           </Flex>
