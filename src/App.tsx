@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { ChakraProvider } from "@chakra-ui/react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { Box, Flex } from "@chakra-ui/react";
+import { Box, Flex, Text } from "@chakra-ui/react";
 
 import Calendar from "./pages/calendar";
 import Search from "./pages/search";
@@ -29,18 +29,10 @@ function App() {
       // Access the user data from Telegram
       const userData: TelegramUser = webApp.initDataUnsafe?.user;
 
-      // Log the whole initDataUnsafe object to inspect
-      console.log("Telegram WebApp initDataUnsafe:", webApp.initDataUnsafe);
-
-      // Set the user data in state and log the user data
+      // Set the user data in state
       if (userData) {
         setUser(userData);
-        console.log("Telegram user data:", userData);
-      } else {
-        console.log("No user data available from Telegram.");
       }
-    } else {
-      console.log("Telegram WebApp is not available.");
     }
   }, []);
 
@@ -50,6 +42,23 @@ function App() {
         <Router>
           <Flex direction="column" height="100vh" gap={8}>
             <Box flex="1" p={4} overflowY="auto">
+              {/* Display user information if available */}
+              {user ? (
+                <Box mb={4}>
+                  <Text fontSize="xl" fontWeight="bold">
+                    Welcome, {user.first_name} {user.last_name ?? ""}
+                  </Text>
+                  <Text>Telegram ID: {user.id}</Text>
+                  <Text>Username: {user.username ?? "No username available"}</Text>
+                  {user.photo_url && (
+                    <img src={user.photo_url} alt="Profile" style={{ borderRadius: '50%', width: '100px' }} />
+                  )}
+                </Box>
+              ) : (
+                <Text>Loading user data from Telegram...</Text>
+              )}
+
+              {/* Routes for your app */}
               <Routes>
                 <Route path="/" element={<Search />} />
                 <Route path="/calendar" element={<Calendar />} />
