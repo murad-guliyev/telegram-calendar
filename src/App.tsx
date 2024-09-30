@@ -48,7 +48,7 @@ function App() {
         setUser(userData);
       }
     }
-  }, [navigate]);
+  }, []);
   // Function to handle sharing the referral link
   const handleShareReferral = () => {
     if (user) {
