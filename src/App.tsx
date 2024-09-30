@@ -38,6 +38,9 @@ function App() {
 
       // Extract URL parameters directly from the browser window location
       const url = new URL(window.location.href);
+      console.log(url);
+      const urlParams1 = new URLSearchParams(window.location.search);
+      console.log(urlParams1);
       const startParam = url.searchParams.get("start");
 
       console.log("Extracted start param directly from URL:", startParam);
