@@ -107,6 +107,8 @@ function App() {
                   </Text>
                   <Text>Telegram ID: {user.id}</Text>
                   <Text>Username: {user.username ?? "No username available"}</Text>
+                  <Text>Referred Id: {referrerId ?? "No referral available"}</Text>
+
                   {user.photo_url && (
                     <img src={user.photo_url} alt="Profile" style={{ borderRadius: '50%', width: '100px' }} />
                   )}
