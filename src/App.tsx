@@ -32,11 +32,11 @@ function App() {
     if (window.Telegram && window.Telegram.WebApp) {
       const webApp = window.Telegram.WebApp;
       webApp.expand(); // Expand the mini app
-
       // Access the user data from Telegram
       const initData = webApp.initDataUnsafe;
       const userData: TelegramUser = webApp.initDataUnsafe?.user;
-      setReferrerId("aaaaaaaaaaaaaaa");
+      // console.log(initData.query_id);
+      setReferrerId(initData);
       // Check for the referral parameter in the deep link (if any)
       const startParam = initData.query_id?.split("start=")[1];
       if (startParam && startParam.startsWith("ref_")) {
