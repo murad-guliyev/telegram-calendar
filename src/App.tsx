@@ -39,9 +39,9 @@ function App() {
 
       // Check for the referral parameter in the deep link (if any)
       const startParam = initData.query_id?.split("start=")[1];
+      setReferrerId(startParam);  // Store the referrer ID in state
       if (startParam && startParam.startsWith("ref_")) {
         const referrer = startParam.split("ref_")[1];  // Extract referrer ID
-        setReferrerId("12345");  // Store the referrer ID in state
         console.log(`Referred by user ID: ${referrer}`);
       }
 
