@@ -1,13 +1,16 @@
-import React, { useState } from "react";
-import { Calendar, dateFnsLocalizer } from "react-big-calendar";
-import "react-big-calendar/lib/css/react-big-calendar.css";
-import { format, parse, startOfWeek, getDay } from "date-fns";
+import React, { useState, useEffect } from "react";
+import { Box, Button, Flex, Text } from "@chakra-ui/react";
+import { format, getDay, parse, startOfWeek } from "date-fns";
 import { az } from "date-fns/locale";
-import { v4 as uuidv4 } from "uuid";
-import EventModal from "../components/event-modal";
+import { Calendar, dateFnsLocalizer } from "react-big-calendar";
+
+import "react-big-calendar/lib/css/react-big-calendar.css";
+
 import CustomToolbar from "../components/custom-toolbar";
-import RegisterModal from "../components/register-modal"; // Assuming RegisterModal is created
-import { Box, Flex, Button, Text } from "@chakra-ui/react";
+import EventModal from "../components/event-modal";
+import RegisterModal from "../components/register-modal";
+import { TEvent } from "../models/event";
+import { getEventsByOwnerId } from "../services/event"; // Import the event service
 
 const locales = {
   az,
@@ -36,44 +39,39 @@ const calendarMessages = {
   showMore: (total: number) => `Daha çox (${total})`,
 };
 
-interface Event {
-  id: string;
-  title: string;
-  start: Date;
-  end: Date;
-  allDay?: boolean;
-}
-
 const MyCalendar: React.FC = () => {
-  const [events, setEvents] = useState<Event[]>([]);
+  const [events, setEvents] = useState<TEvent[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
 
-  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const [userId, setUserId] = useState<string | null>(null);
+  const [selectedEvent, setSelectedEvent] = useState<TEvent | undefined>(
+    undefined
+  );
+  const [userId, setUserId] = useState<string | null>("773338374");
 
-  const handleSelectEvent = (event: Event) => {
+  useEffect(() => {
+    if (userId) {
+      // Fetch events from Firestore when userId is set
+      loadUserEvents(userId);
+    }
+  }, [userId]);
+
+  // Function to load events based on owner_id
+  const loadUserEvents = async (ownerId: string) => {
+    const eventsData = await getEventsByOwnerId(ownerId);
+    console.log("Events loaded: ", eventsData);
+    setEvents(eventsData);
+  };
+
+  const handleSelectEvent = (event: TEvent) => {
     setSelectedEvent(event);
     setIsModalOpen(true);
   };
 
-  const handleSaveEvent = (title: string, start: Date, end: Date) => {
-    if (selectedEvent) {
-      setEvents(
-        events.map((event) =>
-          event.id === selectedEvent.id
-            ? { ...event, title, start, end }
-            : event
-        )
-      );
-    } else {
-      const newEvent: Event = {
-        id: uuidv4(),
-        title,
-        start,
-        end,
-      };
-      setEvents([...events, newEvent]);
+  const handleSaveEvent = () => {
+    // Refresh events after an event is saved
+    if (userId) {
+      loadUserEvents(userId);
     }
   };
 
@@ -90,7 +88,7 @@ const MyCalendar: React.FC = () => {
         height="100%"
       >
         <Text fontSize="xl" mb={4} px={4} textAlign="center">
-          Cədvəl yaradmaq üçün qeydiyyatdan keçin
+          Cədvəl yaratmaq üçün qeydiyyatdan keçin
         </Text>
         <Button
           onClick={() => setIsRegisterModalOpen(true)}
@@ -135,7 +133,7 @@ const MyCalendar: React.FC = () => {
       <EventModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSave={handleSaveEvent}
+        onEventChange={handleSaveEvent}
         initialEvent={selectedEvent}
       />
     </Box>

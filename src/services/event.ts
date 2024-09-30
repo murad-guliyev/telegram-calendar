@@ -3,27 +3,61 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDocs,
+  query,
   Timestamp,
   updateDoc,
+  where,
 } from "firebase/firestore";
 import { db } from "../firebase";
+import { TEvent } from "../models/event";
 
-export const addEvent = async (
-  title: string,
-  owner_id: string,
-  start_datetime: string,
-  end_datetime: string,
-  status: "pending" | "completed" | "cancelled",
-  whole_day: boolean = false
+export const getEventsByOwnerId = async (
+  ownerId: string
+): Promise<TEvent[]> => {
+  const eventsRef = collection(db, "event");
+  const q = query(eventsRef, where("owner_id", "==", ownerId));
+
+  const querySnapshot = await getDocs(q);
+  const events: TEvent[] = [];
+
+  querySnapshot.forEach((doc) => {
+    const data = doc.data();
+
+    // Correctly parse start and end datetime fields
+    const start = data.start_datetime.toDate
+      ? data.start_datetime.toDate()
+      : new Date(data.start_datetime);
+    const end = data.end_datetime.toDate
+      ? data.end_datetime.toDate()
+      : new Date(data.end_datetime);
+
+    events.push({
+      id: doc.id,
+      title: data.title,
+      start,
+      end,
+      allDay: data.is_whole_day || false,
+    });
+  });
+
+  return events;
+};
+
+export const createEvent = async (
+  data: TEvent,
+  ownerId: string
 ): Promise<void> => {
+  const { title, allDay, start, end } = data;
+
   try {
     const docRef = await addDoc(collection(db, "event"), {
       title: title,
-      owner_id: owner_id,
-      start_datetime: Timestamp.fromDate(new Date(start_datetime)),
-      end_datetime: Timestamp.fromDate(new Date(end_datetime)),
-      status: status,
-      whole_day: whole_day,
+      owner_id: ownerId,
+      start_datetime: Timestamp.fromDate(new Date(start)),
+      end_datetime: Timestamp.fromDate(new Date(end)),
+      status: "active",
+      whole_day: allDay,
     });
     console.log("New event added with ID: ", docRef.id);
   } catch (e) {
@@ -33,27 +67,21 @@ export const addEvent = async (
 
 export const updateEvent = async (
   eventId: string,
-  title?: string,
-  owner_id?: string,
-  start_datetime?: string,
-  end_datetime?: string,
-  status?: "pending" | "completed" | "cancelled",
-  whole_day?: boolean
+  data: TEvent,
+  ownerId: string
 ): Promise<void> => {
+  const { title, start, end, allDay } = data;
+
   try {
     const eventRef = doc(db, "event", eventId);
     const updatedFields: any = {};
 
-    if (title !== undefined) updatedFields.title = title;
-    if (owner_id !== undefined) updatedFields.owner_id = owner_id;
-    if (start_datetime !== undefined)
-      updatedFields.start_datetime = Timestamp.fromDate(
-        new Date(start_datetime)
-      );
-    if (end_datetime !== undefined)
-      updatedFields.end_datetime = Timestamp.fromDate(new Date(end_datetime));
-    if (status !== undefined) updatedFields.status = status;
-    if (whole_day !== undefined) updatedFields.whole_day = whole_day;
+    updatedFields.title = title;
+    updatedFields.owner_id = ownerId;
+    updatedFields.start_datetime = Timestamp.fromDate(new Date(start));
+    updatedFields.end_datetime = Timestamp.fromDate(new Date(end));
+    updatedFields.status = "active";
+    updatedFields.whole_day = allDay;
 
     await updateDoc(eventRef, updatedFields);
     console.log("Event updated successfully!");

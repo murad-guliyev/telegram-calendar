@@ -14,97 +14,82 @@ import {
   Checkbox,
 } from "@chakra-ui/react";
 import DatePicker from "react-datepicker";
+import { createEvent, updateEvent, deleteEvent } from "../services/event";
+import { TEvent } from "../models/event";
 
 import "react-datepicker/dist/react-datepicker.css";
-
-interface Event {
-  id: string;
-  title: string;
-  start: Date;
-  end: Date;
-  allDay?: boolean;
-  description?: string;
-}
 
 interface EventModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (
-    title: string,
-    start: Date,
-    end: Date,
-    allDay: boolean,
-    description: string
-  ) => void;
-  initialEvent?: Event | null;
+  onEventChange: () => void;
+  initialEvent?: TEvent | null;
 }
 
 const EventModal: React.FC<EventModalProps> = ({
   isOpen,
   onClose,
-  onSave,
+  onEventChange,
   initialEvent,
 }) => {
-  const [title, setTitle] = useState("");
-  const [start, setStart] = useState<Date | null>(null);
-  const [end, setEnd] = useState<Date | null>(null);
-  const [allDay, setAllDay] = useState(false);
-  const [description, setDescription] = useState("");
+  const [event, setEvent] = useState<TEvent>({
+    id: "",
+    title: "",
+    start: new Date(),
+    end: new Date(),
+    allDay: false,
+  });
+  const ownerId = "773338374"; // Replace with actual owner ID
 
+  // Sync state with initialEvent when modal opens
   useEffect(() => {
     if (initialEvent) {
-      setTitle(initialEvent.title);
-      setStart(initialEvent.start);
-      setEnd(initialEvent.end);
-      setAllDay(initialEvent.allDay || false);
-      setDescription(initialEvent.description || "");
+      setEvent({
+        ...initialEvent,
+        start: new Date(initialEvent.start),
+        end: new Date(initialEvent.end),
+      });
     } else {
-      setTitle("");
-      setStart(new Date());
-      setEnd(new Date());
-      setAllDay(false);
-      setDescription("");
+      // Reset for new event
+      setEvent({
+        id: "",
+        title: "",
+        start: new Date(),
+        end: new Date(),
+        allDay: false,
+      });
     }
   }, [initialEvent]);
 
-  const handleSave = () => {
-    // addUser(
-    //   "994",
-    //   "Kamran",
-    //   ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"],
-    //   30,
-    //   "18:00",
-    //   "20:00",
-    //   "2024-09-28T13:00:00Z"
-    // );
+  // Handle changes for different fields in the event object
+  const handleChange = (field: keyof TEvent, value: any) => {
+    setEvent((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
 
-    // addEvent(
-    //   "Rashid's event",
-    //   "user_id_54321",
-    //   "2024-09-28T10:00:00Z",
-    //   "2024-09-28T11:00:00Z",
-    //   "pending",
-    //   false
-    // );
-
-    // updateEvent(
-    //   "CzMnVO5XRptRdJd26QKb",
-    //   "Updated Event Title",
-    //   "user_id_54321",
-    //   "2024-09-28T12:00:00Z",
-    //   "2024-09-28T13:00:00Z",
-    //   "completed",
-    //   false
-    // );
-
-    // // Example usage
-    // deleteEvent("event_id_12345");
-
-    if (title && start && end) {
-      onSave(title, start, end, allDay, description);
+  // Save Event (Create or Update)
+  const handleSave = async () => {
+    if (event.title && event.start && event.end) {
+      if (initialEvent) {
+        await updateEvent(event.id, event, ownerId);
+      } else {
+        await createEvent(event, ownerId);
+      }
+      onEventChange(); // Notify parent to refresh the event list
       onClose();
     } else {
       alert("Zəhmət olmasa, bütün sahələri doldurun");
+    }
+  };
+
+  // Delete Event
+  const handleDelete = async () => {
+    if (initialEvent) {
+      await deleteEvent(initialEvent.id);
+      onEventChange(); // Notify parent to refresh the event list
+      onClose();
     }
   };
 
@@ -120,16 +105,16 @@ const EventModal: React.FC<EventModalProps> = ({
           <FormControl id="title" mb={4}>
             <FormLabel>Hadisə Başlığı</FormLabel>
             <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              value={event.title}
+              onChange={(e) => handleChange("title", e.target.value)}
               placeholder="Hadisə başlığını daxil edin"
             />
           </FormControl>
 
           <FormControl display="flex" alignItems="center" mb={4}>
             <Checkbox
-              isChecked={allDay}
-              onChange={(e) => setAllDay(e.target.checked)}
+              isChecked={event.allDay}
+              onChange={(e) => handleChange("allDay", e.target.checked)}
             >
               Bütün gün
             </Checkbox>
@@ -138,12 +123,14 @@ const EventModal: React.FC<EventModalProps> = ({
           <FormControl id="start" mb={4}>
             <FormLabel>Başlanğıc Vaxtı</FormLabel>
             <DatePicker
-              selected={start}
-              onChange={(date: Date | null) => setStart(date)}
-              showTimeSelect={!allDay}
+              selected={event.start}
+              onChange={(date: Date | null) =>
+                date && handleChange("start", date)
+              }
+              showTimeSelect={!event.allDay}
               timeFormat="HH:mm"
               timeIntervals={15}
-              dateFormat={allDay ? "P" : "Pp"}
+              dateFormat={event.allDay ? "P" : "Pp"}
               className="chakra-input"
               withPortal
               onFocus={(e) => e.target.blur()}
@@ -153,31 +140,34 @@ const EventModal: React.FC<EventModalProps> = ({
           <FormControl id="end" mb={4}>
             <FormLabel>Son Vaxt</FormLabel>
             <DatePicker
-              selected={end}
-              onChange={(date: Date | null) => setEnd(date)}
-              showTimeSelect={!allDay}
+              selected={event.end}
+              onChange={(date: Date | null) =>
+                date && handleChange("end", date)
+              }
+              showTimeSelect={!event.allDay}
               timeFormat="HH:mm"
               timeIntervals={15}
-              dateFormat={allDay ? "P" : "Pp"}
+              dateFormat={event.allDay ? "P" : "Pp"}
               className="chakra-input"
               withPortal
               onFocus={(e) => e.target.blur()}
             />
           </FormControl>
-
-          <FormControl id="description" mb={4}>
-            <FormLabel>Təsvir</FormLabel>
-            <Input
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Hadisə təsviri daxil edin"
-            />
-          </FormControl>
         </ModalBody>
         <ModalFooter pb={8}>
           <Button colorScheme="blue" mr={3} onClick={handleSave}>
-            Yadda Saxla
+            {initialEvent ? "Yadda Saxla" : "Yarat"}
           </Button>
+          {initialEvent && (
+            <Button
+              colorScheme="red"
+              variant="outline"
+              mr={3}
+              onClick={handleDelete}
+            >
+              Sil
+            </Button>
+          )}
           <Button variant="ghost" onClick={onClose}>
             Ləğv et
           </Button>
