@@ -23,8 +23,6 @@ function App() {
   const [referralLink, setReferralLink] = useState<string | null>(null);  // Store the referral link
   const [copySuccess, setCopySuccess] = useState<string>("");  // Store copy status message
 
-  // const navigate = useNavigate();
-
   useEffect(() => {
     // Initialize Telegram WebApp and fetch user data
     if (window.Telegram && window.Telegram.WebApp) {
@@ -49,14 +47,21 @@ function App() {
       }
     }
   }, []);
-  // Function to handle sharing the referral link
+
+  // Function to handle sharing the referral link using Telegram's popup
   const handleShareReferral = () => {
     if (user) {
       // Generate deep link with the user's Telegram ID
       const referrerId = user.id;  // This is the current user's Telegram ID
       const deepLink = `https://t.me/tg_scheduler_bot?start=ref_${referrerId}`;
 
-      // Store the referral link in state to display it
+      // Show the deep link in a popup (Telegram-provided)
+      window.Telegram.WebApp.showPopup({
+        title: "Share Your Referral Link",
+        message: `Copy and share this link: ${deepLink}`,
+      });
+
+      // Store the referral link in state to display it in the UI as well
       setReferralLink(deepLink);
     }
   };
@@ -92,7 +97,7 @@ function App() {
 
                   {/* Button to generate the referral link */}
                   <Button mt={4} colorScheme="teal" onClick={handleShareReferral}>
-                    Generate Referral Link
+                  Generate and Share Referral Link
                   </Button>
                   {/* Display the referral link if generated */}
                   {referralLink && (
