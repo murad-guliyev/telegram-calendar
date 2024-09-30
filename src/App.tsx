@@ -64,17 +64,17 @@ function App() {
 
       // Show the deep link in a popup (Telegram-provided)
       window.Telegram.WebApp.showPopup({
-        title: "Share Your Referral Link",
-        message: `Copy and share this link: ${deepLink}`,
+        title: "Öz cədvəlini paylaş",
+        message: `Kopyala və paylaş: ${deepLink}`,
         buttons: [
-          { id: "copy_link", type: "default", text: "Copy Link" },
+          { id: "copyLink", type: "default", text: "Linki kopyala" },
           { id: "close", type: "close", text: "Close" },
         ],
       });
 
       // Attach an event handler for when the popup buttons are clicked
       window.Telegram.WebApp.onEvent("popupClosed", (event: PopupEvent) => {
-        if (event.button_id === "copy_link") {
+        if (event.button_id === "copyLink") {
           // When the user clicks the "Copy Link" button, copy the referral link
           copyToClipboard();
         }
@@ -86,9 +86,9 @@ function App() {
   const copyToClipboard = () => {
     if (referralLink) {
       navigator.clipboard.writeText(referralLink).then(() => {
-        setCopySuccess("Referral link copied to clipboard!");  // Success message
+        setCopySuccess("Link kopyalandı!");  // Success message
       }, () => {
-        setCopySuccess("Failed to copy referral link.");  // Error message
+        setCopySuccess("Koplayan zaman xəta baş verdi!");  // Error message
       });
     }
   };
