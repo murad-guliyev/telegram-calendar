@@ -23,7 +23,7 @@ function App() {
   const [referralLink, setReferralLink] = useState<string | null>(null);  // Store the referral link
   const [copySuccess, setCopySuccess] = useState<string>("");  // Store copy status message
 
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   useEffect(() => {
     // Initialize Telegram WebApp and fetch user data
