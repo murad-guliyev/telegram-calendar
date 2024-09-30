@@ -31,18 +31,19 @@ function App() {
     if (window.Telegram && window.Telegram.WebApp) {
       const webApp = window.Telegram.WebApp;
       webApp.expand(); // Expand the mini app
-
-      // Access the user data from Telegram
       const initData = webApp.initDataUnsafe;
       const userData: TelegramUser = initData?.user;
-
-      // Log initData for debugging
+      // Log the entire initData for inspection
       console.log("initData:", webApp.initData);
+      console.log("initDataUnsafe:", webApp.initDataUnsafe);
       
-      // Decode initData to extract parameters (e.g., 'start' for referral)
-      const urlParams = new URLSearchParams(window.Telegram.WebApp.initData);
+      // Attempt to decode initData and extract parameters (e.g., 'start' for referral)
+      const urlParams = new URLSearchParams(webApp.initData);
+      console.log("urlParams:", urlParams); // Log URL params for further insight
+      
       const startParam = urlParams.get("start");
-
+      console.log("Extracted startParam:", startParam); // Log the extracted start parameter
+  
       if (startParam && startParam.startsWith("ref_")) {
         const referrer = startParam.split("ref_")[1];  // Extract referrer ID
         setReferrerId(referrer);  // Store the referrer ID in state
@@ -51,7 +52,6 @@ function App() {
         setReferrerId(null);  // No referral ID found
         console.log("No referral ID available");
       }
-
       // Set the user data in state
       if (userData) {
         setUser(userData);
