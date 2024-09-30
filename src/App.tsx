@@ -112,7 +112,7 @@ function App() {
                   )}
 
                   <Button mt={4} colorScheme="teal" onClick={handleShareReferral}>
-                    Generate and Share Referral Link
+                    Cədvəlini paylaş
                   </Button>
 
                   {/* Show the success message if the link was copied */}
