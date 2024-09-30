@@ -41,7 +41,7 @@ function App() {
       const startParam = initData.query_id?.split("start=")[1];
       if (startParam && startParam.startsWith("ref_")) {
         const referrer = startParam.split("ref_")[1];  // Extract referrer ID
-        setReferrerId(referrer);  // Store the referrer ID in state
+        setReferrerId("12345");  // Store the referrer ID in state
         console.log(`Referred by user ID: ${referrer}`);
       }
 
