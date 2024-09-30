@@ -28,21 +28,28 @@ function App() {
   const [copySuccess, setCopySuccess] = useState<string>("");  // Store copy status message
 
   useEffect(() => {
-    // Initialize Telegram WebApp and fetch user data
     if (window.Telegram && window.Telegram.WebApp) {
       const webApp = window.Telegram.WebApp;
       webApp.expand(); // Expand the mini app
+
       // Access the user data from Telegram
       const initData = webApp.initDataUnsafe;
-      const userData: TelegramUser = webApp.initDataUnsafe?.user;
-      // console.log(initData.query_id);
-      setReferrerId(initData.query_id);
-      // Check for the referral parameter in the deep link (if any)
-      const startParam = initData.query_id?.split("start=")[1];
+      const userData: TelegramUser = initData?.user;
+
+      // Log initData for debugging
+      console.log("initData:", webApp.initData);
+      
+      // Decode initData to extract parameters (e.g., 'start' for referral)
+      const urlParams = new URLSearchParams(window.Telegram.WebApp.initData);
+      const startParam = urlParams.get("start");
+
       if (startParam && startParam.startsWith("ref_")) {
         const referrer = startParam.split("ref_")[1];  // Extract referrer ID
-          // Store the referrer ID in state
+        setReferrerId(referrer);  // Store the referrer ID in state
         console.log(`Referred by user ID: ${referrer}`);
+      } else {
+        setReferrerId(null);  // No referral ID found
+        console.log("No referral ID available");
       }
 
       // Set the user data in state
