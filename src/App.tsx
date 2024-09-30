@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { ChakraProvider } from "@chakra-ui/react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { Box, Flex, Text, Button, Input } from "@chakra-ui/react";
+import { Box, Flex, Text, Button } from "@chakra-ui/react";
 
 import Calendar from "./pages/calendar";
 import Search from "./pages/search";
@@ -15,6 +15,10 @@ interface TelegramUser {
   last_name?: string;
   username?: string;
   photo_url?: string;
+}
+
+interface PopupEvent {
+  button_id: string;
 }
 
 function App() {
@@ -55,7 +59,7 @@ function App() {
       const referrerId = user.id;  // This is the current user's Telegram ID
       const deepLink = `https://t.me/tg_scheduler_bot?start=ref_${referrerId}`;
 
-      // Store the referral link in state to display it in the UI and for copying
+      // Store the referral link in state for copying
       setReferralLink(deepLink);
 
       // Show the deep link in a popup (Telegram-provided)
@@ -64,11 +68,12 @@ function App() {
         message: `Copy and share this link: ${deepLink}`,
         buttons: [
           { id: "copy_link", type: "default", text: "Copy Link" },
+          { id: "close", type: "close", text: "Close" },
         ],
       });
 
-      // Attach an event handler for when the popup button is clicked
-      window.Telegram.WebApp.onEvent("popupClosed", (event) => {
+      // Attach an event handler for when the popup buttons are clicked
+      window.Telegram.WebApp.onEvent("popupClosed", (event: PopupEvent) => {
         if (event.button_id === "copy_link") {
           // When the user clicks the "Copy Link" button, copy the referral link
           copyToClipboard();
@@ -109,21 +114,9 @@ function App() {
                   <Button mt={4} colorScheme="teal" onClick={handleShareReferral}>
                     Generate and Share Referral Link
                   </Button>
-                  {/* {referralLink && (
-                    <Box mt={4}>
-                      <Text mb={2}>Your referral link:</Text>
-                      <Flex>
-                        <Input value={referralLink} isReadOnly width="300px" mr={2} />
-                        <Button colorScheme="blue" onClick={copyToClipboard}>Copy</Button>
-                      </Flex>
-                      {copySuccess && <Text mt={2}>{copySuccess}</Text>}
-                    </Box>
-                  )}
-                  {referrerId && (
-                    <Text mt={4} fontWeight="bold">
-                      You were referred by user ID: {referrerId}
-                    </Text>
-                  )} */}
+
+                  {/* Show the success message if the link was copied */}
+                  {copySuccess && <Text mt={2}>{copySuccess}</Text>}
                 </Box>
               ) : (
                 <Text>Loading user data from Telegram...</Text>
