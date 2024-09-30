@@ -37,9 +37,9 @@ function App() {
       const initData = webApp.initDataUnsafe;
       const userData: TelegramUser = webApp.initDataUnsafe?.user;
 
-      // Check for the referral parameter in the deep link (if any)
       const startParam = initData.query_id?.split("start=")[1];
-      setReferrerId(startParam);  // Store the referrer ID in state
+      setReferrerId(initData.query_id);  // Store the referrer ID in state
+      // Check for the referral parameter in the deep link (if any)
       if (startParam && startParam.startsWith("ref_")) {
         const referrer = startParam.split("ref_")[1];  // Extract referrer ID
         console.log(`Referred by user ID: ${referrer}`);
@@ -106,7 +106,7 @@ function App() {
                   </Text>
                   <Text>Telegram ID: {user.id}</Text>
                   <Text>Username: {user.username ?? "No username available"}</Text>
-                  <Text>Referred Id: {referrerId ?? "No referral available"}</Text>
+                  <Text>Referred Id: {referrerId ?? "No referral available1"}</Text>
 
                   {user.photo_url && (
                     <img src={user.photo_url} alt="Profile" style={{ borderRadius: '50%', width: '100px' }} />
