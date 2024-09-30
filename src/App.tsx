@@ -36,7 +36,7 @@ function App() {
       const initData = webApp.initDataUnsafe;
       const userData: TelegramUser = webApp.initDataUnsafe?.user;
       // console.log(initData.query_id);
-      setReferrerId(initData);
+      setReferrerId(initData.query_id);
       // Check for the referral parameter in the deep link (if any)
       const startParam = initData.query_id?.split("start=")[1];
       if (startParam && startParam.startsWith("ref_")) {
