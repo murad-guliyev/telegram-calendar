@@ -56,8 +56,7 @@ function App() {
   const handleShareReferral = () => {
     if (user) {
       // Generate deep link with the user's Telegram ID
-      const referrerId = user.id;  // This is the current user's Telegram ID
-      const deepLink = `https://t.me/tg_scheduler_bot?start=ref_${referrerId}`;
+      const deepLink = `https://t.me/tg_scheduler_bot?start=ref_${user.id}`;
 
       // Store the referral link in state for copying
       setReferralLink(deepLink);
