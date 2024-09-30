@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { ChakraProvider } from "@chakra-ui/react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import { Box, Flex, Text } from "@chakra-ui/react";
+import { Box, Flex, Text, Button } from "@chakra-ui/react";
 
 import Calendar from "./pages/calendar";
 import Search from "./pages/search";
@@ -35,7 +35,20 @@ function App() {
       }
     }
   }, []);
+  // Function to handle sharing the referral link
+  const handleShareReferral = () => {
+    if (user) {
+      // Generate deep link with the user's Telegram ID
+      const referrerId = user.id;  // This is the current user's Telegram ID
+      const deepLink = `https://t.me/tg_scheduler_bot?start=ref_${referrerId}`;
 
+      // Show the deep link in a popup
+      window.Telegram.WebApp.showPopup({
+        title: "Share Your Referral Link",
+        message: `Copy and share this link: ${deepLink}`,
+      });
+    }
+  };
   return (
     <ChakraProvider>
       <div className="App">
@@ -53,6 +66,10 @@ function App() {
                   {user.photo_url && (
                     <img src={user.photo_url} alt="Profile" style={{ borderRadius: '50%', width: '100px' }} />
                   )}
+                  {/* Button to share the referral link */}
+                  <Button mt={4} colorScheme="teal" onClick={handleShareReferral}>
+                    Share Referral Link
+                  </Button>
                 </Box>
               ) : (
                 <Text>Loading user data from Telegram...</Text>
