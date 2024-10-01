@@ -6,11 +6,13 @@ import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 
 import "react-big-calendar/lib/css/react-big-calendar.css";
 
+import { useUser } from "../contexts/user";
+
 import CustomToolbar from "../components/custom-toolbar";
 import EventModal from "../components/event-modal";
 import RegisterModal from "../components/register-modal";
 import { TEvent } from "../models/event";
-import { getEventsByOwnerId } from "../services/event"; // Import the event service
+import { getEventsByOwnerId } from "../services/event";
 
 const locales = {
   az,
@@ -40,26 +42,25 @@ const calendarMessages = {
 };
 
 const MyCalendar: React.FC = () => {
+  const { user } = useUser();
   const [events, setEvents] = useState<TEvent[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
-
   const [selectedEvent, setSelectedEvent] = useState<TEvent | undefined>(
     undefined
   );
-  const [userId, setUserId] = useState<string | null>("773338374");
+
+  console.log("user", user);
 
   useEffect(() => {
-    if (userId) {
-      // Fetch events from Firestore when userId is set
-      loadUserEvents(userId);
+    if (user?.telegramData?.id) {
+      // Fetch events from Firestore when user is set
+      loadUserEvents(user.telegramData.id.toString());
     }
-  }, [userId]);
+  }, [user]);
 
-  // Function to load events based on owner_id
   const loadUserEvents = async (ownerId: string) => {
     const eventsData = await getEventsByOwnerId(ownerId);
-    console.log("Events loaded: ", eventsData);
     setEvents(eventsData);
   };
 
@@ -69,73 +70,65 @@ const MyCalendar: React.FC = () => {
   };
 
   const handleSaveEvent = () => {
-    // Refresh events after an event is saved
-    if (userId) {
-      loadUserEvents(userId);
+    if (user?.telegramData?.id) {
+      loadUserEvents(user.telegramData.id.toString());
     }
   };
 
-  const handleUserCreate = (createdUserId: string) => {
-    setUserId(createdUserId);
-  };
-
-  if (!userId) {
-    return (
-      <Flex
-        justifyContent="center"
-        alignItems="center"
-        flexDirection="column"
-        height="100%"
-      >
-        <Text fontSize="xl" mb={4} px={4} textAlign="center">
-          Cədvəl yaratmaq üçün qeydiyyatdan keçin
-        </Text>
-        <Button
-          onClick={() => setIsRegisterModalOpen(true)}
-          colorScheme="blue"
-          width="256px"
-        >
-          Qeydiyyat
-        </Button>
-        <RegisterModal
-          isOpen={isRegisterModalOpen}
-          onClose={() => setIsRegisterModalOpen(false)}
-          onUserCreate={handleUserCreate}
-        />
-      </Flex>
-    );
-  }
-
   return (
     <Box style={{ height: "100%" }}>
-      <Flex py={4} justifyContent="end">
-        <Button onClick={() => setIsModalOpen(true)} colorScheme="blue">
-          Yeni hadisə
-        </Button>
-      </Flex>
-      <Calendar
-        localizer={localizer}
-        events={events}
-        startAccessor="start"
-        endAccessor="end"
-        longPressThreshold={100}
-        onSelectEvent={handleSelectEvent}
-        style={{ height: "100%" }}
-        defaultView="day"
-        views={["day", "week"]}
-        step={30}
-        timeslots={2}
-        messages={calendarMessages}
-        components={{
-          toolbar: CustomToolbar,
-        }}
-      />
-      <EventModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onEventChange={handleSaveEvent}
-        initialEvent={selectedEvent}
-      />
+      {!user?.firebaseData?.id ? (
+        <Flex
+          justifyContent="center"
+          alignItems="center"
+          flexDirection="column"
+          height="100%"
+        >
+          <Text fontSize="xl" mb={4} px={4} textAlign="center">
+            Cədvəl yaratmaq üçün qeydiyyatdan keçin
+          </Text>
+          <Button
+            onClick={() => setIsRegisterModalOpen(true)}
+            colorScheme="blue"
+            width="256px"
+          >
+            Qeydiyyat
+          </Button>
+          <RegisterModal
+            isOpen={isRegisterModalOpen}
+            onClose={() => setIsRegisterModalOpen(false)}
+          />
+        </Flex>
+      ) : (
+        <>
+          <Flex py={4} justifyContent="end">
+            <Button onClick={() => setIsModalOpen(true)} colorScheme="blue">
+              Yeni hadisə
+            </Button>
+          </Flex>
+          <Calendar
+            localizer={localizer}
+            events={events}
+            startAccessor="start"
+            endAccessor="end"
+            longPressThreshold={100}
+            onSelectEvent={handleSelectEvent}
+            style={{ height: "100%" }}
+            defaultView="day"
+            views={["day", "week"]}
+            step={30}
+            timeslots={2}
+            messages={calendarMessages}
+            components={{ toolbar: CustomToolbar }}
+          />
+          <EventModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onEventChange={handleSaveEvent}
+            initialEvent={selectedEvent}
+          />
+        </>
+      )}
     </Box>
   );
 };

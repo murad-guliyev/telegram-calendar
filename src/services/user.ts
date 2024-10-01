@@ -1,25 +1,31 @@
 import {
   addDoc,
   collection,
-  doc,
-  getDoc,
+  getDocs,
+  query,
   Timestamp,
   updateDoc,
+  where,
 } from "firebase/firestore";
 import { db } from "../firebase";
-import { TUserData } from "../models/user";
+import { TFirebaseUser, TUserData } from "../models/user";
 
 export const getUser = async (
   userId: string
-): Promise<TUserData | undefined> => {
+): Promise<TFirebaseUser | undefined> => {
   try {
-    const userDocRef = doc(db, "user", userId);
-    const userDoc = await getDoc(userDocRef);
+    const userCollectionRef = collection(db, "user");
 
-    if (userDoc.exists()) {
+    const q = query(userCollectionRef, where("id", "==", userId));
+
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      const userDoc = querySnapshot.docs[0];
       const userData = userDoc.data();
 
       return {
+        id: userData.id,
         username: userData.username,
         phone: userData.phone_number,
         workingDays: userData.work_schedule,
@@ -35,12 +41,14 @@ export const getUser = async (
 };
 
 export const createUser = async (
-  data: TUserData
+  data: TUserData,
+  userId: string
 ): Promise<string | undefined> => {
   const { phone, username, workingDays, startTime, endTime } = data;
 
   try {
     const docRef = await addDoc(collection(db, "user"), {
+      id: userId,
       phone_number: phone,
       username,
       work_schedule: workingDays,
@@ -62,9 +70,28 @@ export const updateUser = async (
   const { phone, username, workingDays, startTime, endTime } = data;
 
   try {
-    const userRef = doc(db, "user", userId);
+    console.log(`Attempting to update user with ID: ${userId}`);
 
-    await updateDoc(userRef, {
+    // Step 1: Search for the user document by its ID using a query.
+    const userCollection = collection(db, "user"); // Replace with the correct collection if needed
+    const userQuery = query(userCollection, where("id", "==", userId));
+
+    // Step 2: Execute the query to find the document.
+    const querySnapshot = await getDocs(userQuery);
+
+    if (querySnapshot.empty) {
+      console.error(`No document found with userId: ${userId}`);
+      return undefined;
+    }
+
+    // Step 3: Extract the document reference for the found user.
+    const userDocRef = querySnapshot.docs[0].ref; // Assuming `userId` is unique, use the first match.
+
+    console.log("Found user document at path:", userDocRef.path);
+
+    // Step 4: Update the found user document.
+    await updateDoc(userDocRef, {
+      id: userId,
       phone_number: phone,
       username,
       work_schedule: workingDays,
@@ -72,8 +99,9 @@ export const updateUser = async (
       end_time: endTime,
     });
 
+    console.log("User document updated successfully!");
     return userId;
   } catch (e) {
-    console.error("Error on creating new user: ", e);
+    console.error("Error updating user document: ", e);
   }
 };

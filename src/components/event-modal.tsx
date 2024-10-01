@@ -18,6 +18,7 @@ import { createEvent, updateEvent, deleteEvent } from "../services/event";
 import { TEvent } from "../models/event";
 
 import "react-datepicker/dist/react-datepicker.css";
+import { useUser } from "../contexts/user";
 
 interface EventModalProps {
   isOpen: boolean;
@@ -32,6 +33,7 @@ const EventModal: React.FC<EventModalProps> = ({
   onEventChange,
   initialEvent,
 }) => {
+  const { user } = useUser();
   const [event, setEvent] = useState<TEvent>({
     id: "",
     title: "",
@@ -39,7 +41,6 @@ const EventModal: React.FC<EventModalProps> = ({
     end: new Date(),
     allDay: false,
   });
-  const ownerId = "773338374"; // Replace with actual owner ID
 
   // Sync state with initialEvent when modal opens
   useEffect(() => {
@@ -71,6 +72,11 @@ const EventModal: React.FC<EventModalProps> = ({
 
   // Save Event (Create or Update)
   const handleSave = async () => {
+    const ownerId = user?.telegramData?.id;
+    if (!ownerId) {
+      return;
+    }
+
     if (event.title && event.start && event.end) {
       if (initialEvent) {
         await updateEvent(event.id, event, ownerId);

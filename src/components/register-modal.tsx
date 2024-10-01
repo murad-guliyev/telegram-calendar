@@ -22,6 +22,7 @@ import { format } from "date-fns";
 
 import { createUser } from "../services/user";
 import { TUserData } from "../models/user";
+import { useUser } from "../contexts/user";
 
 import "react-phone-input-2/lib/style.css";
 import "react-datepicker/dist/react-datepicker.css";
@@ -30,14 +31,11 @@ import { daysOfWeek } from "../utils/daysOfWeek";
 interface RegisterModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onUserCreate: (createdUserId: string) => void;
 }
 
-const RegisterModal: React.FC<RegisterModalProps> = ({
-  isOpen,
-  onClose,
-  onUserCreate,
-}) => {
+const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
+  const { user, setUser } = useUser(); // Access setUser from UserContext
+
   const [username, setUsername] = useState("");
   const [phone, setPhone] = useState("");
   const [workingDays, setWorkingDays] = useState<string[]>([
@@ -57,6 +55,12 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
   const formatTime = (date: Date) => format(date, "HH:mm");
 
   const handleSave = () => {
+    const userId = user?.telegramData?.id;
+
+    if (!userId) {
+      return;
+    }
+
     if (username && phone) {
       const data: TUserData = {
         username,
@@ -66,9 +70,13 @@ const RegisterModal: React.FC<RegisterModalProps> = ({
         endTime: formatTime(endTime),
       };
 
-      createUser(data).then((createdUserId: string | undefined) => {
+      createUser(data, userId).then((createdUserId: string | undefined) => {
         if (createdUserId) {
-          onUserCreate(createdUserId);
+          // Update the context with the new user data
+          setUser((prevUser) => ({
+            telegramData: prevUser?.telegramData || null,
+            firebaseData: { id: createdUserId, ...data },
+          }));
         }
       });
 

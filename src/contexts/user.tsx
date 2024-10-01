@@ -5,20 +5,18 @@ import React, {
   useEffect,
   ReactNode,
 } from "react";
+import { getUser } from "../services/user"; // Import the getUser service to fetch Firebase data
+import { TFirebaseUser, TTelegramUser } from "../models/user";
 
-// Define the shape of the Telegram user data
-interface TelegramUser {
-  id: number;
-  first_name: string;
-  last_name?: string;
-  username?: string;
-  photo_url?: string;
+interface CombinedUser {
+  telegramData: TTelegramUser | null;
+  firebaseData: TFirebaseUser | null;
 }
 
 interface UserContextType {
-  user: TelegramUser | null;
+  user: CombinedUser | null; // Store the combined user data
   referrerId: string | null;
-  setUser: React.Dispatch<React.SetStateAction<TelegramUser | null>>;
+  setUser: React.Dispatch<React.SetStateAction<CombinedUser | null>>; // Set the combined user data
   setReferrerId: React.Dispatch<React.SetStateAction<string | null>>;
 }
 
@@ -38,15 +36,14 @@ export const useUser = () => {
 export const UserProvider: React.FC<{ children: ReactNode }> = ({
   children,
 }) => {
-  const [user, setUser] = useState<TelegramUser | null>(null);
+  const [user, setUser] = useState<CombinedUser | null>(null);
   const [referrerId, setReferrerId] = useState<string | null>(null);
 
   useEffect(() => {
-    const loadTelegramData = () => {
+    const loadTelegramData = async () => {
       if (window.Telegram && window.Telegram.WebApp) {
         const webApp = window.Telegram.WebApp;
 
-        // Log the initData for debugging
         console.log("Telegram WebApp Init Data:", webApp.initData);
         console.log("Telegram WebApp Init Data Unsafe:", webApp.initDataUnsafe);
 
@@ -63,13 +60,28 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
           console.log("No referral ID available");
         }
 
-        // Extract and set the user data
-        const userData: TelegramUser = webApp.initDataUnsafe?.user;
-        if (userData) {
-          console.log("User data set:", userData);
-          setUser(userData);
+        // Set Telegram user data
+        const telegramData: TTelegramUser = webApp.initDataUnsafe?.user;
+
+        if (telegramData) {
+          console.log("User data set:", telegramData);
+          // Fetch the corresponding Firebase user data
+          const firebaseData = (await getUser(telegramData.id)) || null;
+
+          // Set both Telegram and Firebase user data in the context
+          setUser({ telegramData, firebaseData });
         } else {
-          console.warn("User data is empty");
+          // For local development, set a default user ID
+          // const firebaseData = (await getUser("773338374")) || null;
+          // setUser({
+          //   telegramData: {
+          //     id: "773338374",
+          //     first_name: "Murad",
+          //     last_name: "Guliyev",
+          //     username: "Binturong93",
+          //   },
+          //   firebaseData,
+          // });
         }
       } else {
         console.warn("Telegram WebApp is not available");
@@ -77,7 +89,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     };
 
     // Ensure that the data is only fetched when Telegram WebApp is available
-    if (window.Telegram && window.Telegram.WebApp) {
+    if (window.Telegram?.WebApp) {
       loadTelegramData();
     } else {
       console.log("Waiting for Telegram WebApp to load...");

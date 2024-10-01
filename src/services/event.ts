@@ -23,7 +23,6 @@ export const getEventsByOwnerId = async (
 
   querySnapshot.forEach((doc) => {
     const data = doc.data();
-
     // Correctly parse start and end datetime fields
     const start = data.start_datetime.toDate
       ? data.start_datetime.toDate()

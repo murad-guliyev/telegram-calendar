@@ -6,6 +6,17 @@ export type TUserData = {
   endTime: string;
 };
 
+export type TTelegramUser = {
+  id: string;
+  first_name: string;
+  last_name?: string;
+  username?: string;
+};
+
+export type TFirebaseUser = TUserData & {
+  id: string;
+};
+
 export interface IUser {
   username: string;
   phone_number: string;

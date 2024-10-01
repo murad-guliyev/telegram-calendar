@@ -11,18 +11,13 @@ const UserInfo: React.FC = () => {
   return (
     <Box mb={4}>
       <Text fontSize="xl" fontWeight="bold">
-        Welcome, {user.first_name} {user.last_name ?? ""}
+        Welcome, {user.telegramData?.first_name}{" "}
+        {user.telegramData?.last_name ?? ""}
       </Text>
-      <Text>Telegram ID: {user.id}</Text>
-      <Text>Username: {user.username ?? "No username available"}</Text>
-
-      {user.photo_url && (
-        <img
-          src={user.photo_url}
-          alt="Profile"
-          style={{ borderRadius: "50%", width: "100px" }}
-        />
-      )}
+      <Text>Telegram ID: {user.telegramData?.id}</Text>
+      <Text>
+        Username: {user.telegramData?.username ?? "No username available"}
+      </Text>
     </Box>
   );
 };

@@ -3,26 +3,34 @@ import ProfileView from "../components/profile-view";
 import ProfileEdit from "../components/profile-edit";
 import { getUser, updateUser } from "../services/user";
 import { TUserData } from "../models/user";
+import { useUser } from "../contexts/user";
 
 const Profile: React.FC = () => {
-  const [userData, setUserData] = useState<TUserData | null>(null);
+  const { user } = useUser();
+  const [userData, setUserData] = useState<TUserData | null>();
   const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
-    getUser("7LmcgDMPUOOW1Bd5m42h").then((userData) => {
-      if (userData) setUserData(userData);
-    });
-  }, []);
+    if (user?.telegramData?.id && user.firebaseData) {
+      const { id, ...firebaseData } = user.firebaseData || {};
 
-  const handleSave = (userData: TUserData) => {
-    updateUser("7LmcgDMPUOOW1Bd5m42h", userData).then((userId) => {
-      if (userId) {
-        getUser(userId).then((userData) => {
-          if (userData) setUserData(userData);
-        });
-      }
-    });
-    setEditMode(false);
+      setUserData(firebaseData);
+    }
+  }, [user]);
+
+  const handleSave = (updatedData: TUserData) => {
+    if (user?.telegramData?.id) {
+      updateUser(user.telegramData.id.toString(), updatedData).then(
+        (userId) => {
+          if (userId) {
+            getUser(userId).then((userData) => {
+              if (userData) setUserData(userData);
+            });
+          }
+        }
+      );
+      setEditMode(false);
+    }
   };
 
   if (!userData) return null;
