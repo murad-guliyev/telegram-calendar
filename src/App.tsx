@@ -10,7 +10,7 @@ import Search from "./pages/search";
 import Profile from "./pages/profile";
 import MasterDetails from "./pages/master-details";
 import Menu from "./components/menu";
-import UserInfo from "./components/userInfo";
+// import UserInfo from "./components/userInfo";
 
 const App: React.FC = () => {
   return (
@@ -20,7 +20,7 @@ const App: React.FC = () => {
           <Router>
             <Flex direction="column" height="100vh" gap={8}>
               <Box flex="1" p={4} overflowY="auto">
-                <UserInfo />
+                {/* <UserInfo /> */}
 
                 <Routes>
                   <Route path="/" element={<Search />} />

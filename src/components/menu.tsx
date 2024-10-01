@@ -2,7 +2,10 @@ import { Flex, IconButton } from "@chakra-ui/react";
 import { Link as RouterLink, useLocation } from "react-router-dom";
 import { SearchIcon, CalendarIcon, SettingsIcon } from "@chakra-ui/icons";
 
+import { useUser } from "../contexts/user";
+
 const Menu = () => {
+  const { user } = useUser();
   const location = useLocation();
 
   const menuItems = [
@@ -20,6 +23,10 @@ const Menu = () => {
       route: "/profile",
     },
   ];
+
+  if (!user) {
+    menuItems.pop();
+  }
 
   return (
     <Flex

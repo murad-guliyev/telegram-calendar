@@ -8,7 +8,7 @@ import {
   where,
 } from "firebase/firestore";
 import { db } from "../firebase";
-import { TFirebaseUser, TUserData } from "../models/user";
+import { IUser, TFirebaseUser, TUserData } from "../models/user";
 
 export const getUser = async (
   userId: string
@@ -37,6 +37,29 @@ export const getUser = async (
     }
   } catch (error) {
     console.error("Error fetching user data: ", error);
+  }
+};
+
+export const getAllUsers = async (): Promise<TFirebaseUser[]> => {
+  try {
+    const usersCollectionRef = collection(db, "user");
+    const snapshot = await getDocs(usersCollectionRef);
+    const users = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    })) as unknown as IUser[];
+
+    return users.map((user) => ({
+      id: user.id,
+      username: user.username,
+      phone: user.phone_number,
+      workingDays: user.work_schedule,
+      startTime: user.start_time,
+      endTime: user.end_time,
+    }));
+  } catch (error) {
+    console.error("Error fetching users: ", error);
+    return [];
   }
 };
 

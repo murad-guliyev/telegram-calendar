@@ -64,24 +64,29 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
         const telegramData: TTelegramUser = webApp.initDataUnsafe?.user;
 
         if (telegramData) {
-          console.log("User data set:", telegramData);
+          const updatedTelegramData = {
+            ...telegramData,
+            id: telegramData.id.toString(),
+          };
+          console.log("User data set:", updatedTelegramData);
           // Fetch the corresponding Firebase user data
-          const firebaseData = (await getUser(telegramData.id)) || null;
+          const firebaseData = (await getUser(updatedTelegramData.id)) || null;
 
           // Set both Telegram and Firebase user data in the context
-          setUser({ telegramData, firebaseData });
+          setUser({ telegramData: updatedTelegramData, firebaseData });
         } else {
           // For local development, set a default user ID
-          // const firebaseData = (await getUser("773338374")) || null;
-          // setUser({
-          //   telegramData: {
-          //     id: "773338374",
-          //     first_name: "Murad",
-          //     last_name: "Guliyev",
-          //     username: "Binturong93",
-          //   },
-          //   firebaseData,
-          // });
+          const firebaseData = (await getUser("773338374")) || null;
+
+          setUser({
+            telegramData: {
+              id: "773338374",
+              first_name: "Murad",
+              last_name: "Guliyev",
+              username: "Binturong93",
+            },
+            firebaseData,
+          });
         }
       } else {
         console.warn("Telegram WebApp is not available");

@@ -18,6 +18,7 @@ export type TFirebaseUser = TUserData & {
 };
 
 export interface IUser {
+  id: string;
   username: string;
   phone_number: string;
   work_schedule: Array<string>;
