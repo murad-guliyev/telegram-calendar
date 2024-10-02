@@ -12,6 +12,7 @@ import {
   FormControl,
   FormLabel,
   Checkbox,
+  Divider,
 } from "@chakra-ui/react";
 import DatePicker from "react-datepicker";
 import { createEvent, updateEvent, deleteEvent } from "../services/event";
@@ -160,6 +161,9 @@ const EventModal: React.FC<EventModalProps> = ({
             />
           </FormControl>
         </ModalBody>
+
+        <Divider my={4} />
+
         <ModalFooter pb={8}>
           <Button colorScheme="blue" mr={3} onClick={handleSave}>
             {initialEvent ? "Yadda Saxla" : "Yarat"}

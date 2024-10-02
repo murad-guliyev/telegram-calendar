@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -15,6 +15,7 @@ import {
   VStack,
   Text,
   Box,
+  Divider,
 } from "@chakra-ui/react";
 import PhoneInput from "react-phone-input-2";
 import DatePicker from "react-datepicker";
@@ -51,6 +52,15 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
   const [endTime, setEndTime] = useState(
     new Date(new Date().setHours(18, 0, 0))
   );
+
+  useEffect(() => {
+    // If the user data exists, prefill the username and phone fields
+    if (user?.telegramData) {
+      setUsername(
+        `${user.telegramData.first_name} ${user.telegramData.last_name}` || ""
+      );
+    }
+  }, [user]);
 
   const formatTime = (date: Date) => format(date, "HH:mm");
 
@@ -184,6 +194,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
             </Box>
           </FormControl>
         </ModalBody>
+        <Divider my={4} />
         <ModalFooter pb={8}>
           <Button colorScheme="blue" mr={3} onClick={handleSave}>
             Qeydiyyatdan keç

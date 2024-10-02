@@ -85,7 +85,7 @@ const MyCalendar: React.FC = () => {
           justifyContent="center"
           alignItems="center"
           flexDirection="column"
-          height="100%"
+          height={["calc(100% - 64px)", "100%"]}
         >
           <Text fontSize="xl" mb={4} px={4} textAlign="center">
             Cədvəl yaratmaq üçün qeydiyyatdan keçin
