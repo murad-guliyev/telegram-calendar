@@ -10,7 +10,6 @@ import {
   Text,
   Button,
   Divider,
-  Heading,
 } from "@chakra-ui/react";
 import PhoneInput from "react-phone-input-2";
 import DatePicker from "react-datepicker";
@@ -19,6 +18,7 @@ import { daysOfWeek } from "../utils/daysOfWeek";
 import "react-phone-input-2/lib/style.css";
 import "react-datepicker/dist/react-datepicker.css";
 import { TUserData } from "../models/user";
+import PageTitle from "./title";
 
 interface ProfileEditProps {
   userData: TUserData;
@@ -65,10 +65,9 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({
   };
 
   return (
-    <Box p={4} maxW="600px" mx="auto">
-      <Heading size="md" mb={4}>
-        Profil Məlumatlarını Dəyişdir
-      </Heading>
+    <Box>
+      <PageTitle title="Profili Redaktə et" />
+
       <VStack spacing={4} align="start">
         <FormControl id="username" mb={4}>
           <FormLabel>İstifadəçi adı</FormLabel>
@@ -122,6 +121,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({
                 showTimeSelectOnly
                 timeIntervals={60}
                 timeCaption="Saat"
+                timeFormat="HH:mm" // Use 24-hour time format
                 dateFormat="HH:mm"
                 className="chakra-input"
                 onFocus={(e) => e.target.blur()}
@@ -137,6 +137,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({
                 showTimeSelectOnly
                 timeIntervals={60}
                 timeCaption="Saat"
+                timeFormat="HH:mm" // Use 24-hour time format
                 dateFormat="HH:mm"
                 className="chakra-input"
                 onFocus={(e) => e.target.blur()}

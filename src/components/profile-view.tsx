@@ -2,7 +2,6 @@ import React from "react";
 import {
   Box,
   Text,
-  Heading,
   VStack,
   Badge,
   Button,
@@ -11,6 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { daysOfWeek } from "../utils/daysOfWeek";
 import { TUserData } from "../models/user";
+import PageTitle from "./title";
 
 interface ProfileViewProps {
   userData: TUserData;
@@ -19,11 +19,17 @@ interface ProfileViewProps {
 
 const ProfileView: React.FC<ProfileViewProps> = ({ userData, onEdit }) => {
   const { username, phone, workingDays, startTime, endTime } = userData;
+
+  // Sort the workingDays based on the "order" in daysOfWeek
+  const orderedWorkingDays = workingDays
+    .map((day) => daysOfWeek.find((d) => d.id === day)) // Match each day in workingDays to daysOfWeek
+    .filter((day): day is (typeof daysOfWeek)[number] => day !== undefined) // Filter out undefined values
+    .sort((a, b) => a.order - b.order); // Sort by the "order" field
+
   return (
-    <Box p={4} maxW="600px" mx="auto">
-      <Heading size="lg" mb={4}>
-        Profil Məlumatları
-      </Heading>
+    <Box>
+      <PageTitle title="Profil" />
+
       <VStack spacing={4} align="start">
         <Box>
           <Text fontWeight="bold" fontSize="lg">
@@ -44,9 +50,9 @@ const ProfileView: React.FC<ProfileViewProps> = ({ userData, onEdit }) => {
             İş Günləri:
           </Text>
           <VStack spacing={2} align="start">
-            {workingDays.map((day) => (
-              <Badge key={day} colorScheme="blue" px={2} py={1}>
-                {daysOfWeek.find((d) => d.id === day)?.label}
+            {orderedWorkingDays.map((day) => (
+              <Badge key={day.id} colorScheme="blue" px={2} py={1}>
+                {day.label}
               </Badge>
             ))}
           </VStack>

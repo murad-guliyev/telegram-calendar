@@ -12,6 +12,7 @@ import {
 import { Link as RouterLink } from "react-router-dom";
 import { getAllUsers } from "../services/user";
 import { TFirebaseUser } from "../models/user";
+import PageTitle from "../components/title";
 
 const Search: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -42,10 +43,8 @@ const Search: React.FC = () => {
   };
 
   return (
-    <Box p={6}>
-      <Text fontSize="2xl" fontWeight="bold" mb={6} textAlign="center">
-        Axtarış Sistemi
-      </Text>
+    <Box>
+      <PageTitle title="Axtarış Sistemi" />
 
       {/* Search Input */}
       <Input

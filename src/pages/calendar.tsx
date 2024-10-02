@@ -13,6 +13,7 @@ import EventModal from "../components/event-modal";
 import RegisterModal from "../components/register-modal";
 import { TEvent } from "../models/event";
 import { getEventsByOwnerId } from "../services/event";
+import PageTitle from "../components/title";
 
 const locales = {
   az,
@@ -77,6 +78,8 @@ const MyCalendar: React.FC = () => {
 
   return (
     <Box style={{ height: "100%" }}>
+      <PageTitle title="Cədvəl" />
+
       {!user?.firebaseData?.id ? (
         <Flex
           justifyContent="center"
@@ -101,7 +104,7 @@ const MyCalendar: React.FC = () => {
         </Flex>
       ) : (
         <>
-          <Flex py={4} justifyContent="end">
+          <Flex pb={4} justifyContent="end">
             <Button onClick={() => setIsModalOpen(true)} colorScheme="blue">
               Yeni hadisə
             </Button>

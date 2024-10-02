@@ -159,6 +159,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
                 showTimeSelectOnly
                 timeIntervals={60}
                 timeCaption="Saat"
+                timeFormat="HH:mm"
                 dateFormat="HH:mm"
                 className="chakra-input"
                 onFocus={(e) => e.target.blur()}
@@ -174,6 +175,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
                 showTimeSelectOnly
                 timeIntervals={60}
                 timeCaption="Saat"
+                timeFormat="HH:mm"
                 dateFormat="HH:mm"
                 className="chakra-input"
                 onFocus={(e) => e.target.blur()}
