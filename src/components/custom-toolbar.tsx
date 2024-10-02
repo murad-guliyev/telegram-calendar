@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Button, Flex, IconButton } from "@chakra-ui/react";
+import { Box, Flex, IconButton, Button, Select } from "@chakra-ui/react";
 import { ArrowBackIcon, ArrowForwardIcon } from "@chakra-ui/icons";
 import { format, parse } from "date-fns";
 import { az } from "date-fns/locale";
@@ -8,14 +8,16 @@ interface CustomToolbarProps {
   label: string;
   onNavigate: (action: "PREV" | "NEXT" | "TODAY") => void;
   onView: (view: string) => void;
-  showViewSwitcher?: boolean; // New prop to control view switching
+  view: string; // Current view prop to reflect the state in Select
+  showViewSwitcher?: boolean; // Toggle for showing view switcher
 }
 
 const CustomToolbar: React.FC<CustomToolbarProps> = ({
   label,
   onNavigate,
   onView,
-  showViewSwitcher = true, // Default to true if not provided
+  view,
+  showViewSwitcher = true,
 }) => {
   // Function to parse and format the label into Azerbaijani
   const formatLabel = (label: string) => {
@@ -40,12 +42,7 @@ const CustomToolbar: React.FC<CustomToolbarProps> = ({
             aria-label="Previous"
             onClick={() => onNavigate("PREV")}
           />
-          <Button
-            aria-label="Today"
-            ml={2}
-            colorScheme="blue"
-            onClick={() => onNavigate("TODAY")}
-          >
+          <Button ml={2} colorScheme="blue" onClick={() => onNavigate("TODAY")}>
             Bugün
           </Button>
           <IconButton
@@ -55,15 +52,17 @@ const CustomToolbar: React.FC<CustomToolbarProps> = ({
             onClick={() => onNavigate("NEXT")}
           />
         </Flex>
-        {showViewSwitcher && ( // Conditionally render the view switch buttons
-          <Flex>
-            <Button ml={2} onClick={() => onView("day")}>
-              Gün
-            </Button>
-            <Button ml={2} onClick={() => onView("week")}>
-              Həftə
-            </Button>
-          </Flex>
+        {showViewSwitcher && (
+          <Select
+            ml={2}
+            width="120px"
+            value={view} // Use view prop to control Select value
+            onChange={(e) => onView(e.target.value)}
+          >
+            <option value="day">1 Gün</option>
+            <option value="week">1 Həftə</option>
+            <option value="month">1 Ay</option>
+          </Select>
         )}
       </Flex>
       <Box fontWeight="bold" fontSize="lg">

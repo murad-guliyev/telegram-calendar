@@ -29,7 +29,7 @@ const locales = {
   az,
 };
 
-const localizer: any = dateFnsLocalizer({
+const localizer = dateFnsLocalizer({
   format: (date: Date, formatStr: string, options?: { locale: Locale }) =>
     format(date, formatStr, options),
   parse: (value: string, formatString: string, options?: { locale: Locale }) =>
@@ -67,18 +67,14 @@ const MyCalendar: React.FC = () => {
   const [maxTime, setMaxTime] = useState<Date>(new Date());
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [loading, setLoading] = useState<boolean>(true);
+  const [view, setView] = useState<string>("day");
 
   useEffect(() => {
     if (user?.firebaseData?.id) {
       loadUserDetails(user.firebaseData.id);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    user?.firebaseData?.id,
-    user?.firebaseData?.startTime,
-    user?.firebaseData?.endTime,
-    user?.firebaseData?.workingDays,
-  ]);
+  }, [user?.firebaseData?.id]);
 
   const loadUserDetails = async (ownerId: string) => {
     try {
@@ -86,14 +82,12 @@ const MyCalendar: React.FC = () => {
       const eventsData = await getEventsByOwnerId(ownerId);
       setEvents(eventsData);
 
-      // Retrieve working hours from the user data in the context
       const userStartTime = user?.firebaseData?.startTime;
       const userEndTime = user?.firebaseData?.endTime;
 
       if (userStartTime && userEndTime) {
         const startHour = parseInt(userStartTime.split(":")[0]);
         const startMinutes = parseInt(userStartTime.split(":")[1]);
-
         const endHour = parseInt(userEndTime.split(":")[0]);
         const endMinutes = parseInt(userEndTime.split(":")[1]);
 
@@ -117,17 +111,33 @@ const MyCalendar: React.FC = () => {
     }
   };
 
-  const handleSwipeLeft = () => {
-    setCurrentDate((prevDate) => addDays(prevDate, 1)); // Move to the next day
-  };
-
-  const handleSwipeRight = () => {
-    setCurrentDate((prevDate) => subDays(prevDate, 1)); // Move to the previous day
+  const handleSwipe = (direction: "left" | "right") => {
+    let dateIncrement;
+    switch (view) {
+      case "month":
+        dateIncrement =
+          direction === "left"
+            ? addDays(currentDate, 30)
+            : subDays(currentDate, 30);
+        break;
+      case "week":
+        dateIncrement =
+          direction === "left"
+            ? addDays(currentDate, 7)
+            : subDays(currentDate, 7);
+        break;
+      default:
+        dateIncrement =
+          direction === "left"
+            ? addDays(currentDate, 1)
+            : subDays(currentDate, 1);
+    }
+    setCurrentDate(dateIncrement);
   };
 
   const handlers = useSwipeable({
-    onSwipedLeft: handleSwipeLeft,
-    onSwipedRight: handleSwipeRight,
+    onSwipedLeft: () => handleSwipe("left"),
+    onSwipedRight: () => handleSwipe("right"),
     trackMouse: true,
   });
 
@@ -180,18 +190,23 @@ const MyCalendar: React.FC = () => {
             longPressThreshold={100}
             onSelectEvent={handleSelectEvent}
             date={currentDate}
-            onNavigate={(date: any) => setCurrentDate(date)}
+            onNavigate={(date: Date) => setCurrentDate(date)}
             style={{ height: "700px" }}
-            defaultView="day"
-            views={["day", "week"]}
+            views={{
+              day: true,
+              week: true,
+              month: true,
+            }}
+            view={view}
+            onView={(newView: string) => setView(newView)}
             step={30}
             timeslots={2}
-            min={minTime} // Set min time based on working hours
-            max={maxTime} // Set max time based on working hours
+            min={minTime}
+            max={maxTime}
             messages={calendarMessages}
             components={{
               toolbar: (props: any) => (
-                <CustomToolbar {...props} showViewSwitcher={true} />
+                <CustomToolbar {...props} showViewSwitcher={true} view={view} />
               ),
             }}
             formats={{
