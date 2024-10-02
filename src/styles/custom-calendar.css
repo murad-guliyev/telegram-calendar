@@ -1,0 +1,25 @@
+/* custom-calendar.css */
+.rbc-time-gutter {
+  width: 70px; /* Set a larger width for the time gutter */
+}
+
+/* Make sure the first cell is not empty */
+.rbc-timeslot-group {
+  border-top: 1px solid #ddd; /* Optional styling for better visual separation */
+}
+
+.rbc-time-column .rbc-timeslot-group:first-of-type {
+  height: 30px; /* Fix height for the first cell if needed */
+}
+
+/* Center the time labels */
+.rbc-time-gutter .rbc-timeslot-group .rbc-label {
+  text-align: center;
+  font-size: 14px; /* Adjust font size for better readability */
+}
+
+/* Additional styles to adjust event appearance */
+.rbc-event {
+  border-radius: 4px; /* Rounded corners for events */
+  padding: 2px 4px;
+}

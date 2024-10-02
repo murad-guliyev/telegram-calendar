@@ -1,14 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom"; // Import useParams to capture URL params
 import { Box, Text } from "@chakra-ui/react";
-import { format, getDay, parse, startOfWeek } from "date-fns";
+import {
+  format,
+  getDay,
+  parse,
+  setHours,
+  setMinutes,
+  startOfWeek,
+} from "date-fns";
 import { az } from "date-fns/locale";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
 
-import "react-big-calendar/lib/css/react-big-calendar.css";
 import CustomToolbar from "../components/custom-toolbar";
 import { TEvent } from "../models/event";
 import { getEventsByOwnerId } from "../services/event";
+import { getUser } from "../services/user";
+
+import "react-big-calendar/lib/css/react-big-calendar.css";
+import "../styles/custom-calendar.css"; // Add this import to include custom styles
 
 const locales = {
   az,
@@ -40,14 +50,34 @@ const calendarMessages = {
 const MasterDetails: React.FC = () => {
   const { id: ownerId } = useParams<{ id: string }>();
   const [events, setEvents] = useState<TEvent[]>([]);
+  const [minTime, setMinTime] = useState<Date>(new Date());
+  const [maxTime, setMaxTime] = useState<Date>(new Date());
 
   useEffect(() => {
     if (ownerId) {
-      const fetchEvents = async () => {
-        const eventsData = await getEventsByOwnerId(ownerId);
+      const fetchEventsAndMasterDetails = async () => {
+        const [userDetails, eventsData] = await Promise.all([
+          getUser(ownerId),
+          getEventsByOwnerId(ownerId),
+        ]);
+
+        // Set events
         setEvents(eventsData);
+
+        // If user details are found, set working hours
+        if (userDetails?.startTime && userDetails?.endTime) {
+          const startHour = parseInt(userDetails.startTime.split(":")[0]);
+          const startMinutes = parseInt(userDetails.startTime.split(":")[1]);
+
+          const endHour = parseInt(userDetails.endTime.split(":")[0]);
+          const endMinutes = parseInt(userDetails.endTime.split(":")[1]);
+
+          // Set min and max time using the master’s working hours
+          setMinTime(setMinutes(setHours(new Date(), startHour), startMinutes));
+          setMaxTime(setMinutes(setHours(new Date(), endHour), endMinutes));
+        }
       };
-      fetchEvents();
+      fetchEventsAndMasterDetails();
     }
   }, [ownerId]);
 
@@ -76,9 +106,24 @@ const MasterDetails: React.FC = () => {
         views={["day", "week"]}
         step={30}
         timeslots={2}
+        min={minTime} // Set min time based on master’s start time
+        max={maxTime} // Set max time based on master’s end time
         messages={calendarMessages}
         components={{
           toolbar: CustomToolbar,
+        }}
+        formats={{
+          timeGutterFormat: "HH:mm", // 24-hour format for time slots
+          eventTimeRangeFormat: (
+            { start, end }: { start: Date; end: Date },
+            culture: string,
+            localizer: any
+          ) =>
+            `${localizer.format(start, "HH:mm", culture)} - ${localizer.format(
+              end,
+              "HH:mm",
+              culture
+            )}`, // 24-hour format for event times
         }}
       />
     </Box>
