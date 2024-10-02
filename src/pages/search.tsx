@@ -2,12 +2,12 @@ import React, { useState, useEffect } from "react";
 import {
   Box,
   Input,
-  List,
-  ListItem,
-  Link,
   Text,
   Flex,
   Spinner,
+  VStack,
+  Avatar,
+  HStack,
 } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
 import { getAllUsers } from "../services/user";
@@ -42,37 +42,73 @@ const Search: React.FC = () => {
   };
 
   return (
-    <Box p={4}>
-      <Text fontSize="xl" mb={4}>
-        Axtarış
+    <Box p={6}>
+      <Text fontSize="2xl" fontWeight="bold" mb={6} textAlign="center">
+        Axtarış Sistemi
       </Text>
 
+      {/* Search Input */}
       <Input
         placeholder="Adı və ya telefon nömrəsini daxil edin"
         value={searchTerm}
         onChange={handleSearch}
-        mb={4}
+        mb={6}
+        size="lg"
+        boxShadow="md"
+        borderColor="gray.300"
+        _focus={{ borderColor: "blue.400" }}
       />
 
+      {/* Loading Indicator */}
       {loading ? (
         <Flex justifyContent="center" mt={8}>
           <Spinner size="xl" color="blue.500" />
         </Flex>
       ) : (
-        <List spacing={3}>
-          {filteredMasters.map((master) => (
-            <ListItem key={master.id}>
-              <Link as={RouterLink} to={`/master/${master.id}`}>
-                <Flex justify="space-between">
-                  <Text>{master.username || "Anonim"}</Text>
-                  <Text>{master.phone}</Text>
-                </Flex>
-              </Link>
-            </ListItem>
-          ))}
+        // Master List Container
+        <VStack spacing={4} align="stretch">
+          {/* Master Cards */}
+          {filteredMasters.length > 0 ? (
+            filteredMasters.map((master) => (
+              <Box
+                key={master.id}
+                as={RouterLink}
+                to={`/master/${master.id}`}
+                p={4}
+                borderWidth="1px"
+                borderRadius="md"
+                boxShadow="sm"
+                transition="all 0.2s"
+                _hover={{ boxShadow: "md", bg: "blue.50" }}
+                bg="white"
+                w="full"
+              >
+                <HStack spacing={4}>
+                  {/* User Avatar (Smaller Size) */}
+                  <Avatar
+                    name={master.username || "Anonim"}
+                    bg="blue.400"
+                    size="md" // Changed size from "lg" to "md"
+                  />
 
-          {filteredMasters.length === 0 && <Text>Nəticə tapılmadı</Text>}
-        </List>
+                  {/* Master Information */}
+                  <VStack align="start" spacing={1} flex="1">
+                    <Text fontWeight="bold" fontSize="lg">
+                      {master.username || "Anonim"}
+                    </Text>
+                    <Text color="gray.600">
+                      {master.phone ? `📞 ${master.phone}` : "Nömrə yoxdur"}
+                    </Text>
+                  </VStack>
+                </HStack>
+              </Box>
+            ))
+          ) : (
+            <Text textAlign="center" fontSize="lg" color="red.500">
+              Nəticə tapılmadı
+            </Text>
+          )}
+        </VStack>
       )}
     </Box>
   );

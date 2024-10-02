@@ -115,12 +115,30 @@ const MyCalendar: React.FC = () => {
             onSelectEvent={handleSelectEvent}
             style={{ height: "100%" }}
             defaultView="day"
-            views={["day", "week"]}
+            views={["day", "week"]} // Keep both "day" and "week" views in MyCalendar
             step={30}
             timeslots={2}
             messages={calendarMessages}
-            components={{ toolbar: CustomToolbar }}
+            components={{
+              toolbar: (props: any) => (
+                <CustomToolbar {...props} showViewSwitcher={true} />
+              ), // Keep view switcher enabled
+            }}
+            formats={{
+              timeGutterFormat: "HH:mm",
+              eventTimeRangeFormat: (
+                { start, end }: { start: string; end: string },
+                culture: string,
+                localizer: any
+              ) =>
+                `${localizer.format(
+                  start,
+                  "HH:mm",
+                  culture
+                )} - ${localizer.format(end, "HH:mm", culture)}`,
+            }}
           />
+
           <EventModal
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
