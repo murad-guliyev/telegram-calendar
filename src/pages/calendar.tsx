@@ -113,6 +113,7 @@ const MyCalendar: React.FC = () => {
   const handleSaveEvent = () => {
     if (user?.firebaseData?.id) {
       loadUserDetails(user.firebaseData.id);
+      setSelectedEvent(undefined);
     }
   };
 

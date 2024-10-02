@@ -35,15 +35,19 @@ const EventModal: React.FC<EventModalProps> = ({
   initialEvent,
 }) => {
   const { user } = useUser();
-  const [event, setEvent] = useState<TEvent>({
+
+  const initialEventState: TEvent = {
     id: "",
     title: "",
     start: new Date(),
     end: new Date(),
     allDay: false,
-  });
+  };
 
-  // Sync state with initialEvent when modal opens
+  const [event, setEvent] = useState<TEvent>(initialEventState);
+  const [minTime, setMinTime] = useState(new Date());
+  const [maxTime, setMaxTime] = useState(new Date());
+
   useEffect(() => {
     if (initialEvent) {
       setEvent({
@@ -52,18 +56,39 @@ const EventModal: React.FC<EventModalProps> = ({
         end: new Date(initialEvent.end),
       });
     } else {
-      // Reset for new event
+      const currentTime = new Date();
+      const startTime =
+        currentTime >= minTime && currentTime <= maxTime
+          ? currentTime
+          : minTime;
+
       setEvent({
-        id: "",
-        title: "",
-        start: new Date(),
-        end: new Date(),
-        allDay: false,
+        ...initialEventState,
+        start: startTime,
+        end: new Date(startTime.getTime() + 60 * 60 * 1000), // Default end time to 1 hour after start
       });
     }
-  }, [initialEvent]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialEvent, minTime, maxTime]);
 
-  // Handle changes for different fields in the event object
+  // Sync working hours from user data
+  useEffect(() => {
+    if (user?.firebaseData?.startTime && user?.firebaseData?.endTime) {
+      const startHour = parseInt(user.firebaseData.startTime.split(":")[0]);
+      const startMinutes = parseInt(user.firebaseData.startTime.split(":")[1]);
+      const endHour = parseInt(user.firebaseData.endTime.split(":")[0]);
+      const endMinutes = parseInt(user.firebaseData.endTime.split(":")[1]);
+
+      const startDate = new Date(
+        new Date().setHours(startHour, startMinutes, 0, 0)
+      );
+      const endDate = new Date(new Date().setHours(endHour, endMinutes, 0, 0));
+
+      setMinTime(startDate);
+      setMaxTime(endDate);
+    }
+  }, [user]);
+
   const handleChange = (field: keyof TEvent, value: any) => {
     setEvent((prev) => ({
       ...prev,
@@ -71,7 +96,29 @@ const EventModal: React.FC<EventModalProps> = ({
     }));
   };
 
-  // Save Event (Create or Update)
+  // Handle All-Day Checkbox Toggle
+  const handleAllDayToggle = (checked: boolean) => {
+    const updatedStart = new Date(event.start.setHours(0, 0, 0, 0)); // Set to midnight
+    const updatedEnd = new Date(event.end.setHours(23, 59, 59, 999)); // Set to end of day
+
+    setEvent((prev) => ({
+      ...prev,
+      allDay: checked,
+      start: checked ? updatedStart : prev.start,
+      end: checked ? updatedEnd : prev.end,
+    }));
+  };
+
+  const validateEndTime = (newStartTime: Date) => {
+    if (event.end <= newStartTime) {
+      const newEndTime = new Date(newStartTime.getTime() + 60 * 60 * 1000);
+      setEvent((prev) => ({
+        ...prev,
+        end: newEndTime,
+      }));
+    }
+  };
+
   const handleSave = async () => {
     const ownerId = user?.telegramData?.id;
     if (!ownerId) {
@@ -84,24 +131,47 @@ const EventModal: React.FC<EventModalProps> = ({
       } else {
         await createEvent(event, ownerId);
       }
-      onEventChange(); // Notify parent to refresh the event list
-      onClose();
+      onEventChange();
+      handleClose();
     } else {
       alert("Zəhmət olmasa, bütün sahələri doldurun");
     }
   };
 
-  // Delete Event
   const handleDelete = async () => {
     if (initialEvent) {
       await deleteEvent(initialEvent.id);
-      onEventChange(); // Notify parent to refresh the event list
-      onClose();
+      onEventChange();
+      handleClose();
     }
   };
 
+  const handleClose = () => {
+    setEvent(initialEventState);
+    onClose();
+  };
+
+  const generateTimeIntervals = () => {
+    const intervals = [];
+    const currentDate = new Date();
+    let current = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      currentDate.getDate(),
+      minTime.getHours(),
+      minTime.getMinutes()
+    );
+
+    while (current <= maxTime) {
+      intervals.push(new Date(current));
+      current.setMinutes(current.getMinutes() + 15); // Increment by 15 minutes
+    }
+
+    return intervals;
+  };
+
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size="full">
+    <Modal isOpen={isOpen} onClose={handleClose} size="full">
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
@@ -121,7 +191,7 @@ const EventModal: React.FC<EventModalProps> = ({
           <FormControl display="flex" alignItems="center" mb={4}>
             <Checkbox
               isChecked={event.allDay}
-              onChange={(e) => handleChange("allDay", e.target.checked)}
+              onChange={(e) => handleAllDayToggle(e.target.checked)}
             >
               Bütün gün
             </Checkbox>
@@ -131,14 +201,18 @@ const EventModal: React.FC<EventModalProps> = ({
             <FormLabel>Başlanğıc Vaxtı</FormLabel>
             <DatePicker
               selected={event.start}
-              onChange={(date: Date | null) =>
-                date && handleChange("start", date)
-              }
+              onChange={(date: Date | null) => {
+                if (date) {
+                  handleChange("start", date);
+                  validateEndTime(date);
+                }
+              }}
               showTimeSelect={!event.allDay}
+              includeTimes={event.allDay ? undefined : generateTimeIntervals()}
               timeFormat="HH:mm"
-              timeIntervals={15}
-              dateFormat={event.allDay ? "P" : "Pp"}
+              dateFormat={event.allDay ? "dd/MM/yyyy" : "dd/MM/yyyy HH:mm"}
               className="chakra-input"
+              timeCaption="Saat"
               withPortal
               onFocus={(e) => e.target.blur()}
             />
@@ -152,10 +226,11 @@ const EventModal: React.FC<EventModalProps> = ({
                 date && handleChange("end", date)
               }
               showTimeSelect={!event.allDay}
+              includeTimes={event.allDay ? undefined : generateTimeIntervals()}
               timeFormat="HH:mm"
-              timeIntervals={15}
-              dateFormat={event.allDay ? "P" : "Pp"}
+              dateFormat={event.allDay ? "dd/MM/yyyy" : "dd/MM/yyyy HH:mm"}
               className="chakra-input"
+              timeCaption="Saat"
               withPortal
               onFocus={(e) => e.target.blur()}
             />
@@ -178,7 +253,7 @@ const EventModal: React.FC<EventModalProps> = ({
               Sil
             </Button>
           )}
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" onClick={handleClose}>
             Ləğv et
           </Button>
         </ModalFooter>
