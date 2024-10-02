@@ -36,7 +36,7 @@ export const getEventsByOwnerId = async (
       title: data.title,
       start,
       end,
-      allDay: data.is_whole_day || false,
+      allDay: data.whole_day || false,
     });
   });
 

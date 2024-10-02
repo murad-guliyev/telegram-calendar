@@ -6,14 +6,13 @@ import { TUserData } from "../models/user";
 import { useUser } from "../contexts/user";
 
 const Profile: React.FC = () => {
-  const { user } = useUser();
-  const [userData, setUserData] = useState<TUserData | null>();
+  const { user, setUser } = useUser(); // Access setUser to update context
+  const [userData, setUserData] = useState<TUserData | null>(null);
   const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
     if (user?.telegramData?.id && user.firebaseData) {
       const { id, ...firebaseData } = user.firebaseData || {};
-
       setUserData(firebaseData);
     }
   }, [user]);
@@ -23,8 +22,18 @@ const Profile: React.FC = () => {
       updateUser(user.telegramData.id.toString(), updatedData).then(
         (userId) => {
           if (userId) {
-            getUser(userId).then((userData) => {
-              if (userData) setUserData(userData);
+            // Fetch the updated user data
+            getUser(userId).then((fetchedUserData) => {
+              if (fetchedUserData) {
+                setUserData(fetchedUserData);
+
+                // Update context with the new data
+                setUser((prevUser) => ({
+                  ...prevUser,
+                  firebaseData: { ...fetchedUserData, id: userId },
+                  telegramData: prevUser?.telegramData || null,
+                }));
+              }
             });
           }
         }

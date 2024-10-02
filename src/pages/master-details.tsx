@@ -11,6 +11,7 @@ import {
   getDay,
   format,
   parse,
+  eachDayOfInterval,
 } from "date-fns";
 import { az } from "date-fns/locale";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
@@ -26,7 +27,7 @@ const locales = {
   az,
 };
 
-const localizer: any = dateFnsLocalizer({
+const localizer = dateFnsLocalizer({
   format: (date: Date, formatStr: string, options?: { locale: Locale }) =>
     format(date, formatStr, options),
   parse: (value: string, formatString: string, options?: { locale: Locale }) =>
@@ -52,6 +53,29 @@ const calendarMessages = {
   showMore: (total: number) => `Daha çox (${total})`,
 };
 
+// Custom Event Component to conditionally show titles for all-day events only and apply styles
+const CustomEvent = ({ event }: { event: TEvent }) => {
+  if (!event.allDay) {
+    return null;
+  }
+
+  return (
+    <div
+      style={{
+        backgroundColor: "#e53e3e", // Red background for all-day events, blue for others
+        color: "white", // White text for better contrast
+        borderRadius: "4px",
+        padding: "4px 12px",
+        textAlign: "center",
+        fontSize: "16px",
+        fontWeight: 500,
+      }}
+    >
+      {event.title}
+    </div>
+  );
+};
+
 const MasterDetails: React.FC = () => {
   const { id: ownerId } = useParams<{ id: string }>();
   const [events, setEvents] = useState<TEvent[]>([]);
@@ -59,13 +83,14 @@ const MasterDetails: React.FC = () => {
   const [maxTime, setMaxTime] = useState<Date>(new Date());
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [ownerName, setOwnerName] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true); // Loading state
+  const [loading, setLoading] = useState<boolean>(true);
+  const [workingDays, setWorkingDays] = useState<string[]>([]);
 
   useEffect(() => {
     if (ownerId) {
       const fetchEventsAndMasterDetails = async () => {
         try {
-          setLoading(true); // Start loading
+          setLoading(true);
 
           const [userDetails, eventsData] = await Promise.all([
             getUser(ownerId),
@@ -80,22 +105,25 @@ const MasterDetails: React.FC = () => {
             setOwnerName(userDetails.username);
           }
 
-          // If user details are found, set working hours
+          // Set working days if available
+          if (userDetails?.workingDays) {
+            setWorkingDays(userDetails.workingDays);
+          }
+
+          // Set working hours
           if (userDetails?.startTime && userDetails?.endTime) {
             const startHour = parseInt(userDetails.startTime.split(":")[0]);
             const startMinutes = parseInt(userDetails.startTime.split(":")[1]);
-
             const endHour = parseInt(userDetails.endTime.split(":")[0]);
             const endMinutes = parseInt(userDetails.endTime.split(":")[1]);
 
-            // Set min and max time using the master’s working hours
             setMinTime(
               setMinutes(setHours(new Date(), startHour), startMinutes)
             );
             setMaxTime(setMinutes(setHours(new Date(), endHour), endMinutes));
           }
         } finally {
-          setLoading(false); // End loading
+          setLoading(false);
         }
       };
 
@@ -103,21 +131,51 @@ const MasterDetails: React.FC = () => {
     }
   }, [ownerId]);
 
-  // Handler for left swipe (Move to previous day)
+  const getDayName = (date: Date) => {
+    const daysMap: { [key: number]: string } = {
+      0: "sunday",
+      1: "monday",
+      2: "tuesday",
+      3: "wednesday",
+      4: "thursday",
+      5: "friday",
+      6: "saturday",
+    };
+    return daysMap[getDay(date)];
+  };
+
+  // Add all-day events for non-working days
+  const getNonWorkingDayEvents = (): TEvent[] => {
+    const allDaysInMonth = eachDayOfInterval({
+      start: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
+      end: new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0),
+    });
+
+    const nonWorkingDays = allDaysInMonth
+      .filter((day) => !workingDays.includes(getDayName(day)))
+      .map((day) => ({
+        id: `non-working-${day.toISOString()}`,
+        title: "Qeyri iş günü",
+        start: day,
+        end: day,
+        allDay: true,
+      }));
+
+    return nonWorkingDays;
+  };
+
   const handleSwipeLeft = () => {
     setCurrentDate((prevDate) => addDays(prevDate, 1)); // Move to the next day
   };
 
-  // Handler for right swipe (Move to next day)
   const handleSwipeRight = () => {
     setCurrentDate((prevDate) => subDays(prevDate, 1)); // Move to the previous day
   };
 
-  // Set up swipeable handlers
   const handlers = useSwipeable({
     onSwipedLeft: handleSwipeLeft,
     onSwipedRight: handleSwipeRight,
-    trackMouse: true, // Enable mouse events as well
+    trackMouse: true,
   });
 
   if (loading) {
@@ -140,13 +198,18 @@ const MasterDetails: React.FC = () => {
   }
 
   return (
-    <Box style={{ height: "100%" }} p={4} {...handlers}>
+    <Box
+      className="master-details-page"
+      style={{ height: "100%" }}
+      p={4}
+      {...handlers}
+    >
       <Text fontSize="2xl" mb={4}>
         {ownerName ? `${ownerName}` : "Cədvəl"}
       </Text>
       <Calendar
         localizer={localizer}
-        events={events}
+        events={[...events, ...getNonWorkingDayEvents()]}
         startAccessor="start"
         endAccessor="end"
         date={currentDate}
@@ -163,6 +226,7 @@ const MasterDetails: React.FC = () => {
           toolbar: (props: any) => (
             <CustomToolbar {...props} showViewSwitcher={false} />
           ),
+          event: CustomEvent,
         }}
         formats={{
           timeGutterFormat: "HH:mm",

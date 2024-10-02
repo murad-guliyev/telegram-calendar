@@ -21,5 +21,16 @@
 /* Additional styles to adjust event appearance */
 .rbc-event {
   border-radius: 4px; /* Rounded corners for events */
-  padding: 2px 4px;
+  padding: 4px 8px;
+}
+
+.master-details-page .rbc-event {
+  border-radius: 4px; /* Rounded corners for events */
+  padding: 0;
+  background-color: #3174ad; /* Custom background color */
+}
+
+.master-details-page .rbc-event .rbc-event-label {
+  padding-top: 4px;
+  padding-left: 8px;
 }

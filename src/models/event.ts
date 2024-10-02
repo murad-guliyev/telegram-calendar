@@ -13,6 +13,6 @@ export interface IEvent {
   owner_id: string;
   start_datetime: string;
   end_datetime: string;
-  is_whole_day: boolean;
+  whole_day: boolean;
   status: "active";
 }
