@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom"; // Import useParams to capture URL params
+import { useParams } from "react-router-dom";
 import { Box, Text } from "@chakra-ui/react";
 import {
   format,
@@ -8,23 +8,25 @@ import {
   setHours,
   setMinutes,
   startOfWeek,
+  addDays,
+  subDays,
 } from "date-fns";
 import { az } from "date-fns/locale";
 import { Calendar, dateFnsLocalizer } from "react-big-calendar";
-
+import { useSwipeable } from "react-swipeable"; // Import the react-swipeable library
+import "react-big-calendar/lib/css/react-big-calendar.css";
 import CustomToolbar from "../components/custom-toolbar";
 import { TEvent } from "../models/event";
 import { getEventsByOwnerId } from "../services/event";
 import { getUser } from "../services/user";
 
-import "react-big-calendar/lib/css/react-big-calendar.css";
-import "../styles/custom-calendar.css"; // Add this import to include custom styles
+import "../styles/custom-calendar.css"; // Include custom styles if needed
 
 const locales = {
   az,
 };
 
-const localizer = dateFnsLocalizer({
+const localizer: any = dateFnsLocalizer({
   format,
   parse,
   startOfWeek: () => startOfWeek(new Date(), { locale: az }),
@@ -52,6 +54,7 @@ const MasterDetails: React.FC = () => {
   const [events, setEvents] = useState<TEvent[]>([]);
   const [minTime, setMinTime] = useState<Date>(new Date());
   const [maxTime, setMaxTime] = useState<Date>(new Date());
+  const [currentDate, setCurrentDate] = useState<Date>(new Date()); // Track the current date view
 
   useEffect(() => {
     if (ownerId) {
@@ -81,6 +84,23 @@ const MasterDetails: React.FC = () => {
     }
   }, [ownerId]);
 
+  // Handler for left swipe (Move to previous day)
+  const handleSwipeLeft = () => {
+    setCurrentDate((prevDate) => addDays(prevDate, 1)); // Move to the next day
+  };
+
+  // Handler for right swipe (Move to next day)
+  const handleSwipeRight = () => {
+    setCurrentDate((prevDate) => subDays(prevDate, 1)); // Move to the previous day
+  };
+
+  // Set up swipeable handlers
+  const handlers = useSwipeable({
+    onSwipedLeft: handleSwipeLeft,
+    onSwipedRight: handleSwipeRight,
+    trackMouse: true, // Enable mouse events as well
+  });
+
   if (!ownerId) {
     return (
       <Box p={4} textAlign="center">
@@ -92,7 +112,7 @@ const MasterDetails: React.FC = () => {
   }
 
   return (
-    <Box style={{ height: "100%" }} p={4}>
+    <Box style={{ height: "100%" }} p={4} {...handlers}>
       <Text fontSize="2xl" mb={4} textAlign="center">
         Cədvəl
       </Text>
@@ -101,6 +121,8 @@ const MasterDetails: React.FC = () => {
         events={events}
         startAccessor="start"
         endAccessor="end"
+        date={currentDate} // Set the current date based on swipe
+        onNavigate={(date: any) => setCurrentDate(date)} // Track navigation changes
         style={{ height: "700px" }}
         defaultView="day"
         views={["day", "week"]}
