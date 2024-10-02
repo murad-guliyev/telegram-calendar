@@ -1,7 +1,7 @@
-import { Flex, IconButton } from "@chakra-ui/react";
+import React from "react";
+import { Flex, IconButton, Text } from "@chakra-ui/react";
 import { Link as RouterLink, useLocation } from "react-router-dom";
 import { SearchIcon, CalendarIcon, SettingsIcon } from "@chakra-ui/icons";
-
 import { useUser } from "../contexts/user";
 
 const Menu = () => {
@@ -9,55 +9,74 @@ const Menu = () => {
   const location = useLocation();
 
   const menuItems = [
-    { to: "/", icon: <SearchIcon />, label: "Search", route: "/" },
+    { to: "/", icon: <SearchIcon />, label: "Axtarış", route: "/" },
     {
       to: "/calendar",
       icon: <CalendarIcon />,
-      label: "Calendar",
+      label: "Cədvəl",
       route: "/calendar",
     },
     {
       to: "/profile",
       icon: <SettingsIcon />,
-      label: "Profile",
+      label: "Profil",
       route: "/profile",
     },
   ];
 
-  if (!user) {
-    menuItems.pop();
+  // Conditionally remove Profile if user is not logged in
+  if (!user?.firebaseData) {
+    menuItems.pop(); // Remove profile menu item if no user data is present
   }
 
   return (
     <Flex
       justify="space-around"
       align="center"
-      p={2}
-      pb={4}
-      bg="blue.500"
+      p={4} // Reduced padding
+      pt={2} // Reduced padding
+      bg="blue.600"
       color="white"
       position="fixed"
       bottom="0"
       width="100%"
+      boxShadow="0px -2px 10px rgba(0,0,0,0.1)"
+      zIndex={1000}
     >
       {menuItems.map((item) => (
-        <IconButton
+        <Flex
           key={item.to}
           as={RouterLink}
           to={item.to}
-          aria-label={item.label}
-          icon={item.icon}
-          colorScheme="whiteAlpha"
-          fontSize="20px"
-          isRound
-          variant={location.pathname === item.route ? "solid" : "ghost"}
-          _hover={{
-            bg: location.pathname === item.route ? "blue.700" : "blue.600",
-          }}
-          _active={{
-            bg: "blue.800",
-          }}
-        />
+          direction="column"
+          align="center"
+          justify="center"
+          fontSize="12px" // Smaller text size
+          _hover={{ textDecoration: "none", color: "white" }}
+        >
+          <IconButton
+            aria-label={item.label}
+            icon={item.icon}
+            colorScheme="whiteAlpha"
+            fontSize="20px" // Smaller icon size
+            variant="unstyled"
+            bg={location.pathname === item.route ? "blue.700" : "transparent"}
+            _hover={{
+              bg: location.pathname === item.route ? "blue.800" : "blue.500",
+            }}
+            _active={{
+              bg: "blue.800",
+            }}
+            mb={1}
+            isRound
+          />
+          <Text
+            fontSize="xs" // Smaller label size
+            color={location.pathname === item.route ? "white" : "gray.300"}
+          >
+            {item.label}
+          </Text>
+        </Flex>
       ))}
     </Flex>
   );
