@@ -43,9 +43,6 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     const loadTelegramData = async () => {
       if (window.Telegram && window.Telegram.WebApp) {
         const webApp = window.Telegram.WebApp;
-  
-        console.log("Telegram WebApp Init Data Unsafe:", webApp.initDataUnsafe);
-  
         const startParam = webApp.initDataUnsafe?.start_param;
   
         if (startParam && startParam.startsWith("ref_")) {
