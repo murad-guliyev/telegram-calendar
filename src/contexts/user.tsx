@@ -43,14 +43,11 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
     const loadTelegramData = async () => {
       if (window.Telegram && window.Telegram.WebApp) {
         const webApp = window.Telegram.WebApp;
-
-        console.log("Telegram WebApp Init Data:", webApp.initData);
+  
         console.log("Telegram WebApp Init Data Unsafe:", webApp.initDataUnsafe);
-
-        // Extract URL parameters directly from the browser window location
-        const url = new URL(window.location.href);
-        const startParam = url.searchParams.get("start");
-
+  
+        const startParam = webApp.initDataUnsafe?.start_param;
+  
         if (startParam && startParam.startsWith("ref_")) {
           const referrer = startParam.split("ref_")[1];
           setReferrerId(referrer);
@@ -59,20 +56,20 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
           setReferrerId(null);
           console.log("No referral ID available");
         }
-
-        // Set Telegram user data
+  
+        // Retrieve and set the Telegram user data
         const telegramData: TTelegramUser = webApp.initDataUnsafe?.user;
-
         if (telegramData) {
           const updatedTelegramData = {
             ...telegramData,
             id: telegramData.id.toString(),
           };
           console.log("User data set:", updatedTelegramData);
-          // Fetch the corresponding Firebase user data
+  
+          // Fetch the Firebase user data for this Telegram user ID
           const firebaseData = (await getUser(updatedTelegramData.id)) || null;
-
-          // Set both Telegram and Firebase user data in the context
+  
+          // Store both Telegram and Firebase data in context
           setUser({ telegramData: updatedTelegramData, firebaseData });
         } else {
           // For local development, set a default user ID
@@ -91,8 +88,8 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
         console.warn("Telegram WebApp is not available");
       }
     };
-
-    // Ensure that the data is only fetched when Telegram WebApp is available
+  
+    // Ensure Telegram WebApp is loaded
     if (window.Telegram?.WebApp) {
       loadTelegramData();
     } else {
@@ -105,6 +102,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       }, 100); // Check every 100ms until Telegram is ready
     }
   }, []);
+  
 
   return (
     <UserContext.Provider value={{ user, referrerId, setUser, setReferrerId }}>
