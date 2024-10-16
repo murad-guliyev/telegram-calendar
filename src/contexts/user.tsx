@@ -44,7 +44,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       if (window.Telegram && window.Telegram.WebApp) {
         const webApp = window.Telegram.WebApp;
         const startParam = webApp.initDataUnsafe?.start_param;
-  
+        console.log("Telegram WebApp startParam", startParam);
         if (startParam && startParam.startsWith("ref_")) {
           const referrer = startParam.split("ref_")[1];
           setReferrerId(referrer);
@@ -53,7 +53,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
           setReferrerId(null);
           console.log("No referral ID available");
         }
-  
+
         // Retrieve and set the Telegram user data
         const telegramData: TTelegramUser = webApp.initDataUnsafe?.user;
         if (telegramData) {
@@ -62,10 +62,10 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
             id: telegramData.id.toString(),
           };
           console.log("User data set:", updatedTelegramData);
-  
+
           // Fetch the Firebase user data for this Telegram user ID
           const firebaseData = (await getUser(updatedTelegramData.id)) || null;
-  
+
           // Store both Telegram and Firebase data in context
           setUser({ telegramData: updatedTelegramData, firebaseData });
         } else {
@@ -85,7 +85,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
         console.warn("Telegram WebApp is not available");
       }
     };
-  
+
     // Ensure Telegram WebApp is loaded
     if (window.Telegram?.WebApp) {
       loadTelegramData();
@@ -99,7 +99,6 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       }, 100); // Check every 100ms until Telegram is ready
     }
   }, []);
-  
 
   return (
     <UserContext.Provider value={{ user, referrerId, setUser, setReferrerId }}>
