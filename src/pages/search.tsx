@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Input,
@@ -9,7 +9,7 @@ import {
   Avatar,
   HStack,
 } from "@chakra-ui/react";
-import { redirect, Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { getAllUsers } from "../services/user";
 import { TFirebaseUser } from "../models/user";
 import PageTitle from "../components/title";
@@ -21,14 +21,15 @@ const Search: React.FC = () => {
   const [masters, setMasters] = useState<TFirebaseUser[]>([]);
   const [filteredMasters, setFilteredMasters] = useState<TFirebaseUser[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.log("Referrer ID:", referrerId);
     if (referrerId) {
       console.log("Redirecting to referrer's profile", `/master/${referrerId}`);
-      redirect(`/master/${referrerId}`);
+      navigate(`/master/${referrerId}`);
     }
-  }, [referrerId]);
+  }, [referrerId, navigate]);
 
   useEffect(() => {
     const fetchMasters = async () => {
