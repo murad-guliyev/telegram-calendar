@@ -66,7 +66,7 @@ const MyCalendar: React.FC = () => {
   const [minTime, setMinTime] = useState<Date>(new Date());
   const [maxTime, setMaxTime] = useState<Date>(new Date());
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [view, setView] = useState<string>("day");
 
   useEffect(() => {
