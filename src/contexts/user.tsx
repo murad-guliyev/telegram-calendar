@@ -70,16 +70,16 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
           setUser({ telegramData: updatedTelegramData, firebaseData });
         } else {
           // For local development, set a default user ID
-          const firebaseData = (await getUser("773338374")) || null;
-          setUser({
-            telegramData: {
-              id: "773338374",
-              first_name: "Murad",
-              last_name: "Guliyev",
-              username: "Binturong93",
-            },
-            firebaseData,
-          });
+          // const firebaseData = (await getUser("773338374")) || null;
+          // setUser({
+          //   telegramData: {
+          //     id: "773338374",
+          //     first_name: "Murad",
+          //     last_name: "Guliyev",
+          //     username: "Binturong93",
+          //   },
+          //   firebaseData,
+          // });
         }
       } else {
         console.warn("Telegram WebApp is not available");
