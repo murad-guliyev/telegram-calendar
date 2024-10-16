@@ -44,6 +44,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({
       if (window.Telegram && window.Telegram.WebApp) {
         const webApp = window.Telegram.WebApp;
         const startParam = webApp.initDataUnsafe?.start_param;
+        console.log("webApp.initDataUnsafe", webApp.initDataUnsafe);
         console.log("Telegram WebApp startParam", startParam);
         if (startParam && startParam.startsWith("ref_")) {
           const referrer = startParam.split("ref_")[1];
