@@ -1,6 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { ChakraProvider } from "@chakra-ui/react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  redirect,
+} from "react-router-dom";
 import { Box, Flex } from "@chakra-ui/react";
 
 import { UserProvider } from "./contexts/user";
@@ -13,6 +18,20 @@ import Menu from "./components/menu";
 // import UserInfo from "./components/userInfo";
 
 const App: React.FC = () => {
+  useEffect(() => {
+    if (window.Telegram && window.Telegram.WebApp) {
+      const webApp = window.Telegram.WebApp;
+      const startParam = webApp.initDataUnsafe?.start_param;
+
+      if (startParam && startParam.startsWith("ref_")) {
+        const referrer = startParam.split("ref_")[1];
+        if (referrer) {
+          redirect(`/master/${referrer}`);
+        }
+      }
+    }
+  }, []);
+
   return (
     <ChakraProvider>
       <UserProvider>
@@ -20,8 +39,6 @@ const App: React.FC = () => {
           <Router>
             <Flex direction="column" height="100vh" gap={8}>
               <Box flex="1" p={4} overflowY="auto">
-                {/* <UserInfo /> */}
-
                 <Routes>
                   <Route path="/" element={<Search />} />
                   <Route path="/calendar" element={<Calendar />} />
