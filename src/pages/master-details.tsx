@@ -224,7 +224,11 @@ const MasterDetails: React.FC = () => {
         messages={calendarMessages}
         components={{
           toolbar: (props: any) => (
-            <CustomToolbar {...props} showViewSwitcher={false} />
+            <CustomToolbar
+              {...props}
+              currentDate={currentDate}
+              showViewSwitcher={false}
+            />
           ),
           event: CustomEvent,
         }}

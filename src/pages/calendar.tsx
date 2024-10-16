@@ -111,6 +111,11 @@ const MyCalendar: React.FC = () => {
     }
   };
 
+  // Added: Handle slot selection
+  const handleSelectSlot = (slotInfo: { start: Date }) => {
+    setIsModalOpen(true);
+  };
+
   const handleSwipe = (direction: "left" | "right") => {
     let dateIncrement;
     switch (view) {
@@ -178,6 +183,29 @@ const MyCalendar: React.FC = () => {
       ) : (
         <>
           <Flex pb={4} justifyContent="end">
+            <Button
+              onClick={() => {
+                if (navigator.share) {
+                  navigator
+                    .share({
+                      title: "Cədvəl paylaşımı",
+                      text: "Cədvələ baxın:",
+                      url: window.location.href, // Share the current page URL
+                    })
+                    .then(() => console.log("Link paylaşımı uğurla edildi"))
+                    .catch((error) =>
+                      console.error("Link paylaşımı uğursuz oldu:", error)
+                    );
+                } else {
+                  alert("Paylaşma funksiyası bu cihazda dəstəklənmir.");
+                }
+              }}
+              colorScheme="green"
+              mr={2}
+            >
+              Paylaş
+            </Button>
+
             <Button onClick={() => setIsModalOpen(true)} colorScheme="blue">
               Yeni hadisə
             </Button>
@@ -189,6 +217,8 @@ const MyCalendar: React.FC = () => {
             endAccessor="end"
             longPressThreshold={100}
             onSelectEvent={handleSelectEvent}
+            onSelectSlot={handleSelectSlot} // Slot selection for creating new events
+            selectable // Enables slot selection
             date={currentDate}
             onNavigate={(date: Date) => setCurrentDate(date)}
             style={{ height: "700px" }}
@@ -206,7 +236,12 @@ const MyCalendar: React.FC = () => {
             messages={calendarMessages}
             components={{
               toolbar: (props: any) => (
-                <CustomToolbar {...props} showViewSwitcher={true} view={view} />
+                <CustomToolbar
+                  {...props}
+                  currentDate={currentDate}
+                  showViewSwitcher={true}
+                  view={view}
+                />
               ),
             }}
             formats={{

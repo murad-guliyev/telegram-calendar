@@ -211,10 +211,20 @@ const EventModal: React.FC<EventModalProps> = ({
               includeTimes={event.allDay ? undefined : generateTimeIntervals()}
               timeFormat="HH:mm"
               dateFormat={event.allDay ? "dd/MM/yyyy" : "dd/MM/yyyy HH:mm"}
-              className="chakra-input"
+              className="chakra-input" // Chakra input styling
               timeCaption="Saat"
               withPortal
               onFocus={(e) => e.target.blur()}
+              customInput={
+                <Input
+                  cursor="pointer"
+                  border="1px"
+                  borderColor="gray.300"
+                  _hover={{ borderColor: "blue.400" }}
+                  _focus={{ borderColor: "blue.500", boxShadow: "outline" }}
+                  padding={2}
+                />
+              }
             />
           </FormControl>
 
@@ -233,6 +243,16 @@ const EventModal: React.FC<EventModalProps> = ({
               timeCaption="Saat"
               withPortal
               onFocus={(e) => e.target.blur()}
+              customInput={
+                <Input
+                  cursor="pointer"
+                  border="1px"
+                  borderColor="gray.300"
+                  _hover={{ borderColor: "blue.400" }}
+                  _focus={{ borderColor: "blue.500", boxShadow: "outline" }}
+                  padding={2}
+                />
+              }
             />
           </FormControl>
         </ModalBody>

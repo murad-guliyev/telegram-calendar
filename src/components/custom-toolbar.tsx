@@ -1,7 +1,7 @@
 import React from "react";
 import { Box, Flex, IconButton, Button, Select } from "@chakra-ui/react";
 import { ArrowBackIcon, ArrowForwardIcon } from "@chakra-ui/icons";
-import { format, parse } from "date-fns";
+import { format, parse, isToday } from "date-fns";
 import { az } from "date-fns/locale";
 
 interface CustomToolbarProps {
@@ -10,6 +10,7 @@ interface CustomToolbarProps {
   onView: (view: string) => void;
   view: string; // Current view prop to reflect the state in Select
   showViewSwitcher?: boolean; // Toggle for showing view switcher
+  currentDate: Date; // Current calendar date for comparison
 }
 
 const CustomToolbar: React.FC<CustomToolbarProps> = ({
@@ -17,18 +18,19 @@ const CustomToolbar: React.FC<CustomToolbarProps> = ({
   onNavigate,
   onView,
   view,
+  currentDate,
   showViewSwitcher = true,
 }) => {
-  // Function to parse and format the label into Azerbaijani
+  // Function to format the current date in Azerbaijani format
+  const formatCurrentDate = (date: Date) =>
+    format(date, "dd MMMM", { locale: az });
+
+  // Function to format the label into Azerbaijani
   const formatLabel = (label: string) => {
     try {
-      // Parse the label into a Date object
       const parsedDate = parse(label, "EEEE MMM dd", new Date());
-
-      // Format the date into Azerbaijani format: "Cümə axşamı - 03 oktyabr"
       return format(parsedDate, "eeee - dd MMMM", { locale: az });
     } catch (error) {
-      // If parsing fails, return the original label
       return label;
     }
   };
@@ -42,8 +44,12 @@ const CustomToolbar: React.FC<CustomToolbarProps> = ({
             aria-label="Previous"
             onClick={() => onNavigate("PREV")}
           />
-          <Button ml={2} colorScheme="blue" onClick={() => onNavigate("TODAY")}>
-            Bugün
+          <Button
+            ml={2}
+            colorScheme={isToday(currentDate) ? "blue" : "gray"}
+            onClick={() => onNavigate("TODAY")}
+          >
+            {formatCurrentDate(new Date())}
           </Button>
           <IconButton
             icon={<ArrowForwardIcon />}
@@ -56,7 +62,7 @@ const CustomToolbar: React.FC<CustomToolbarProps> = ({
           <Select
             ml={2}
             width="120px"
-            value={view} // Use view prop to control Select value
+            value={view}
             onChange={(e) => onView(e.target.value)}
           >
             <option value="day">1 Gün</option>
@@ -66,7 +72,6 @@ const CustomToolbar: React.FC<CustomToolbarProps> = ({
         )}
       </Flex>
       <Box fontWeight="bold" fontSize="lg">
-        {/* Format and translate the label */}
         {formatLabel(label)}
       </Box>
     </Box>
