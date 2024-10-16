@@ -23,6 +23,7 @@ const Search: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    console.log("Referrer ID:", referrerId);
     if (referrerId) {
       redirect(`/master/${referrerId}`);
     }
