@@ -74,7 +74,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({
           <Input
             value={username}
             onChange={(e) => setUsername(e.target.value)}
-            placeholder="İstifadəçi adını daxil edin"
+            placeholder="İstifadəçi adını daxil et"
           />
         </FormControl>
 
@@ -85,7 +85,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({
             value={phone}
             onChange={setPhone}
             inputStyle={{ width: "100%", fontSize: "16px" }}
-            placeholder="Telefon nömrəsini daxil edin"
+            placeholder="Telefon nömrəsini daxil et"
           />
         </FormControl>
 
@@ -93,7 +93,7 @@ const ProfileEdit: React.FC<ProfileEditProps> = ({
           <FormLabel>
             İş günləri
             <Text display="inline-block" ml={1} color="gray.500">
-              (İşlədiyiniz günləri seçin)
+              (İşlədiyin günləri seç)
             </Text>
           </FormLabel>
           <VStack align="start" spacing={2}>

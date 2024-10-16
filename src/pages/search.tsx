@@ -53,11 +53,11 @@ const Search: React.FC = () => {
 
   return (
     <Box>
-      <PageTitle title="Axtarış Sistemi" />
+      <PageTitle title="Axtarış" />
 
       {/* Search Input */}
       <Input
-        placeholder="Adı və ya telefon nömrəsini daxil edin"
+        placeholder="Ad və ya telefon nömrəsini daxil et"
         value={searchTerm}
         onChange={handleSearch}
         mb={6}
@@ -113,7 +113,7 @@ const Search: React.FC = () => {
             ))
           ) : (
             <Text textAlign="center" fontSize="lg" color="red.500">
-              Nəticə tapılmadı
+              Məlumat tapılmadı
             </Text>
           )}
         </VStack>

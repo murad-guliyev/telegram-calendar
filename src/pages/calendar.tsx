@@ -161,7 +161,7 @@ const MyCalendar: React.FC = () => {
           height={["calc(100% - 64px)", "100%"]}
         >
           <Text fontSize="xl" mb={4} px={4} textAlign="center">
-            Cədvəl yaratmaq üçün qeydiyyatdan keçin
+            Öz cədvəlini yaratmaq üçün qeydiyyatdan keç
           </Text>
           <Button
             onClick={() => setIsRegisterModalOpen(true)}

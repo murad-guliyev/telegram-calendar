@@ -180,11 +180,11 @@ const EventModal: React.FC<EventModalProps> = ({
         <ModalCloseButton />
         <ModalBody>
           <FormControl id="title" mb={4}>
-            <FormLabel>Hadisə Başlığı</FormLabel>
+            <FormLabel>Başlığ</FormLabel>
             <Input
               value={event.title}
               onChange={(e) => handleChange("title", e.target.value)}
-              placeholder="Hadisə başlığını daxil edin"
+              placeholder="Hadisə başlığını daxil et"
             />
           </FormControl>
 
@@ -219,7 +219,7 @@ const EventModal: React.FC<EventModalProps> = ({
           </FormControl>
 
           <FormControl id="end" mb={4}>
-            <FormLabel>Son Vaxt</FormLabel>
+            <FormLabel>Bitmə Vaxtı</FormLabel>
             <DatePicker
               selected={event.end}
               onChange={(date: Date | null) =>

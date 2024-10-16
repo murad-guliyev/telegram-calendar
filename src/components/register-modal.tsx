@@ -92,7 +92,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
 
       onClose();
     } else {
-      alert("Zəhmət olmasa, bütün sahələri doldurun");
+      alert("Zəhmət olmasa, bütün sahələri doldur");
     }
   };
 
@@ -137,7 +137,7 @@ const RegisterModal: React.FC<RegisterModalProps> = ({ isOpen, onClose }) => {
             <FormLabel>
               İş günləri
               <Text display="inline-block" ml={1} color="gray.500">
-                (İşlədiyiniz günləri seçin)
+                (İşlədiyin günləri seç)
               </Text>
             </FormLabel>
             <VStack align="start" spacing={2}>
