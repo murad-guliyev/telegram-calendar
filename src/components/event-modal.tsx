@@ -25,7 +25,7 @@ interface EventModalProps {
   isOpen: boolean;
   onClose: () => void;
   onEventChange: () => void;
-  initialEvent?: TEvent | null;
+  initialEvent?: TEvent | null; // Passed selected or newly created event
 }
 
 const EventModal: React.FC<EventModalProps> = ({
@@ -48,6 +48,7 @@ const EventModal: React.FC<EventModalProps> = ({
   const [minTime, setMinTime] = useState(new Date());
   const [maxTime, setMaxTime] = useState(new Date());
 
+  // Sync the initial event (for editing or creating new) into the local state
   useEffect(() => {
     if (initialEvent) {
       setEvent({
@@ -126,7 +127,7 @@ const EventModal: React.FC<EventModalProps> = ({
     }
 
     if (event.title && event.start && event.end) {
-      if (initialEvent) {
+      if (initialEvent?.id) {
         await updateEvent(event.id, event, ownerId);
       } else {
         await createEvent(event, ownerId);
@@ -139,7 +140,7 @@ const EventModal: React.FC<EventModalProps> = ({
   };
 
   const handleDelete = async () => {
-    if (initialEvent) {
+    if (initialEvent?.id) {
       await deleteEvent(initialEvent.id);
       onEventChange();
       handleClose();
@@ -175,12 +176,12 @@ const EventModal: React.FC<EventModalProps> = ({
       <ModalOverlay />
       <ModalContent>
         <ModalHeader>
-          {initialEvent ? "Hadisəni Redaktə Et" : "Yeni Hadisə Əlavə Et"}
+          {initialEvent?.id ? "Hadisəni Redaktə Et" : "Yeni Hadisə Əlavə Et"}
         </ModalHeader>
         <ModalCloseButton />
         <ModalBody>
           <FormControl id="title" mb={4}>
-            <FormLabel>Başlığ</FormLabel>
+            <FormLabel>Başlıq</FormLabel>
             <Input
               value={event.title}
               onChange={(e) => handleChange("title", e.target.value)}
@@ -261,9 +262,9 @@ const EventModal: React.FC<EventModalProps> = ({
 
         <ModalFooter pb={8}>
           <Button colorScheme="blue" mr={3} onClick={handleSave}>
-            {initialEvent ? "Yadda Saxla" : "Yarat"}
+            {initialEvent?.id ? "Yadda Saxla" : "Yarat"}
           </Button>
-          {initialEvent && (
+          {initialEvent?.id && (
             <Button
               colorScheme="red"
               variant="outline"

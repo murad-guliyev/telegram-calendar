@@ -60,9 +60,10 @@ const MyCalendar: React.FC = () => {
   const [events, setEvents] = useState<TEvent[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isRegisterModalOpen, setIsRegisterModalOpen] = useState(false);
+  const [newEvent, setNewEvent] = useState<TEvent | null>(null); // For new event
   const [selectedEvent, setSelectedEvent] = useState<TEvent | undefined>(
     undefined
-  );
+  ); // For edit
   const [minTime, setMinTime] = useState<Date>(new Date());
   const [maxTime, setMaxTime] = useState<Date>(new Date());
   const [currentDate, setCurrentDate] = useState<Date>(new Date());
@@ -100,20 +101,30 @@ const MyCalendar: React.FC = () => {
   };
 
   const handleSelectEvent = (event: TEvent) => {
-    setSelectedEvent(event);
+    setSelectedEvent(event); // Edit existing event
+    setNewEvent(null); // Clear new event state
     setIsModalOpen(true);
   };
 
   const handleSaveEvent = () => {
     if (user?.firebaseData?.id) {
       loadUserDetails(user.firebaseData.id);
-      setSelectedEvent(undefined);
+      setSelectedEvent(undefined); // Clear selected event
+      setNewEvent(null); // Clear new event
     }
   };
 
-  // Added: Handle slot selection
-  const handleSelectSlot = (slotInfo: { start: Date }) => {
-    setIsModalOpen(true);
+  const handleSelectSlot = (slotInfo: { start: Date; end: Date }) => {
+    const newEvent: TEvent = {
+      id: "",
+      title: "",
+      start: slotInfo.start,
+      end: slotInfo.end,
+      allDay: false,
+    };
+    setNewEvent(newEvent); // Set new event with slot times
+    setSelectedEvent(undefined); // Ensure selected event is cleared
+    setIsModalOpen(true); // Open modal for new event
   };
 
   const handleSwipe = (direction: "left" | "right") => {
@@ -205,7 +216,6 @@ const MyCalendar: React.FC = () => {
             >
               Paylaş
             </Button>
-
             <Button onClick={() => setIsModalOpen(true)} colorScheme="blue">
               Yeni hadisə
             </Button>
@@ -217,7 +227,7 @@ const MyCalendar: React.FC = () => {
             endAccessor="end"
             longPressThreshold={100}
             onSelectEvent={handleSelectEvent}
-            onSelectSlot={handleSelectSlot} // Slot selection for creating new events
+            onSelectSlot={handleSelectSlot} // Slot selection
             selectable // Enables slot selection
             date={currentDate}
             onNavigate={(date: Date) => setCurrentDate(date)}
@@ -263,7 +273,7 @@ const MyCalendar: React.FC = () => {
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
             onEventChange={handleSaveEvent}
-            initialEvent={selectedEvent}
+            initialEvent={newEvent || selectedEvent} // Pass newEvent for slot creation, selectedEvent for edit
           />
         </>
       )}
