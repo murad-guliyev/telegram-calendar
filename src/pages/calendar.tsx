@@ -201,7 +201,7 @@ const MyCalendar: React.FC = () => {
                     .share({
                       title: "Cədvəl paylaşımı",
                       text: "Cədvələ baxın:",
-                      url: window.location.href, // Share the current page URL
+                      url: `https://telegram-calendar.vercel.app/master/${user.telegramData?.id}`, // Share the current page URL
                     })
                     .then(() => console.log("Link paylaşımı uğurla edildi"))
                     .catch((error) =>
